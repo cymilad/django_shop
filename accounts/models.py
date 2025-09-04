@@ -5,6 +5,10 @@ from django.contrib.auth.base_user import BaseUserManager
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from .validators import validate_iranian_cellphone_number
+from django.core.mail import send_mail
+from django.urls import reverse
+from django.conf import settings
+from django.core.signing import TimestampSigner
 
 
 class UserType(models.IntegerChoices):
@@ -23,6 +27,8 @@ class UserManager(BaseUserManager):
         if not email:
             raise ValueError(_('The email must be set'))
         email = self.normalize_email(email)  # Example@GMAIL.COM => example@gmail.com
+        extra_fields.setdefault('is_active', False)  # When registering, the user is made disactive.
+        extra_fields.setdefault('is_verified', False)
         user = self.model(email=email, **extra_fields)  # get email and password or othear fields
         user.set_password(password)  # password hash
         user.save()  # save and create user
@@ -46,9 +52,10 @@ class UserManager(BaseUserManager):
 class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(_('email address'), unique=True)  # User email and unique
     is_staff = models.BooleanField(default=False)  # Access to the administration section
-    is_active = models.BooleanField(default=True)  # Account activation
+    is_active = models.BooleanField(default=False)  # Inactive until email confirmation
     is_verified = models.BooleanField(default=False)  # Account verification
-    type = models.IntegerField(choices=UserType.choices, default=UserType.customer.value)  # User type (customer/admin/superuser)
+    type = models.IntegerField(choices=UserType.choices,
+                               default=UserType.customer.value)  # User type (customer/admin/superuser)
     created_date = models.DateTimeField(auto_now_add=True)  # Creation time
     updated_date = models.DateTimeField(auto_now=True)  # Time last update
 
@@ -76,7 +83,6 @@ class Profile(models.Model):
         return f'کاربر جدید'
 
 
-#
 @receiver(post_save, sender=User)
 def create_profile(sender, instance, created, **kwargs):
     """
@@ -84,3 +90,19 @@ def create_profile(sender, instance, created, **kwargs):
     """
     if created:
         Profile.objects.create(user=instance, pk=instance.pk)
+
+
+# Active user with send email
+@receiver(post_save, sender=User)
+def send_activation_email(sender, instance, created, **kwargs):
+    if created and not instance.is_verified:
+        signer = TimestampSigner()
+        token = signer.sign(instance.pk)
+        activation_link = f"{settings.SITE_URL}{reverse('accounts:activate-account', kwargs={'token': token})}"
+
+        subject = 'فعالسازی حساب کاربری'
+        message = f'سلام\nبرای فعالسازی حساب خود روی لینک زیر کلیک کنید:\n{activation_link}'
+        from_email = settings.DEFAULT_FROM_EMAIL
+        recipient_list = [instance.email]
+
+        send_mail(subject, message, from_email, recipient_list)

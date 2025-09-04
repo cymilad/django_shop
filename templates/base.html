@@ -19,7 +19,9 @@
 
     <!-- CSS Implementing Plugins -->
     <link rel="stylesheet" href="{% static 'css/vendor.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/toastr.min.css' %}">
     <link rel="stylesheet" href="{% static 'vendor/bootstrap-icons/font/bootstrap-icons.css' %}">
+
 
     <!-- CSS Front Template -->
     <link rel="stylesheet" href="{% static 'css/theme.min.css' %}">
@@ -152,7 +154,7 @@
                         </button>
                         <!-- End Shopping Cart -->
 
-                        <a class="btn btn-primary btn-transition" href="./page-login-simple.html">ورود</a>
+                        <a class="btn btn-primary btn-transition" href="{% url 'accounts:login' %}">ورود</a>
                     </li>
                 </ul>
             </div>
@@ -507,6 +509,8 @@
         })
     })()
 </script>
+
+<script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
 
 
 {% block js %} {% endblock %}
