@@ -16,60 +16,28 @@
             </div>
             <!-- End Heading -->
 
-            {% if messages %}
-                <script type="text/javascript">
-                    $(document).ready(function () {
-                        {% for message in messages %}
-                            toastr.options = {
-                                "closeButton": true,
-                                "progressBar": true,
-                                "positionClass": "toast-top-right",
-                                "timeOut": "5000"
-                            };
-                            toastr["{{ message.tags }}"]("{{ message }}");
-                        {% endfor %}
-                    });
-                </script>
-            {% endif %}
-
             <!-- Form -->
             <form action="{% url 'accounts:login' %}" method="POST">
                 {% csrf_token %}
-                <!-- Form -->
+
                 <div class="mb-4">
                     <label class="form-label" for="signupSimpleLoginEmail">ایمیل شما</label>
                     <input type="email" class="form-control form-control-lg text-center"
-                           name="username"
-                           id="signupSimpleLoginEmail" placeholder="mail@gmail.com"
-                           aria-label="email@gmail.com" required>
-                    <span class="invalid-feedback">لطفا یک آدرس ایمیل معتبر وارد کنید.</span>
+                           name="username" id="signupSimpleLoginEmail" placeholder="mail@gmail.com"
+                           aria-label="email@gmail.com">
                 </div>
-                <!-- End Form -->
 
-                <!-- Form -->
                 <div class="mb-4">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <label class="form-label" for="signupSimpleLoginPassword">کلمه عبور</label>
+                    <label class="form-label" for="signupSimpleLoginPassword">کلمه عبور</label>
+                    <div class="position-relative">
+                        <input type="password"
+                               class="form-control form-control-lg text-center pe-5"
+                               name="password" id="signupSimpleLoginPassword"
+                               placeholder="*******">
+                        <i id="togglePasswordIcon"
+                           class="bi bi-eye position-absolute top-50 end-0 translate-middle-y me-3"
+                           style="cursor: pointer; font-size: 1.2rem;"></i>
                     </div>
-
-                    <div class="input-group input-group-merge" data-hs-validation-validate-class>
-                        <input type="password" class="js-toggle-password form-control form-control-lg text-center"
-                               name="password" id="signupSimpleLoginPassword" placeholder="*******"
-                               aria-label="8+ characters required"
-                               required
-                               minlength="8"
-                               data-hs-toggle-password-options='{
-                                "target": "#changePassTarget",
-                                "defaultClass": "bi-eye-slash",
-                                "showClass": "bi-eye",
-                                "classChangeTarget": "#changePassIcon"
-                              }'>
-                        <a id="changePassTarget" class="input-group-append input-group-text" href="javascript:;">
-                            <i id="changePassIcon" class="bi-eye"></i>
-                        </a>
-                    </div>
-
-                    <span class="invalid-feedback">لطفا یک گذر واژه معتبر وارد کنید.</span>
                 </div>
                 <!-- End Form -->
 
@@ -90,5 +58,36 @@
 {% endblock %}
 
 {% block js %}
-	<script src="{% static 'js/toastr.min.js' %}"></script>
+    <script>
+        {% if messages %}
+            {% for message in messages %}
+                Toastify({
+                    text: "{{ message }}",
+                    duration: 5000,
+                    gravity: "top",
+                    position: "right",
+                    close: true,
+                    style: {
+                        background: "{% if message.tags == 'error' %}#e74c3c{% else %}#2ecc71{% endif %}",
+                    },
+                }).showToast();
+            {% endfor %}
+        {% endif %}
+    </script>
+
+
+    <script>
+        // eye password
+        const passwordField = document.getElementById("signupSimpleLoginPassword");
+        const togglePasswordIcon = document.getElementById("togglePasswordIcon");
+
+        togglePasswordIcon.addEventListener("click", function () {
+            const type = passwordField.getAttribute("type") === "password" ? "text" : "password";
+            passwordField.setAttribute("type", type);
+
+            this.classList.toggle("bi-eye");
+            this.classList.toggle("bi-eye-slash");
+        });
+    </script>
+
 {% endblock %}

@@ -31,17 +31,25 @@ def login_user(request):
         return redirect('website:index')
 
     if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
+        username = request.POST.get('username', '').strip()
+        password = request.POST.get('password', '').strip()
+
+        if not username or not password:
+            messages.error(request, "ایمیل و رمزعبور را وارد کنید.")
+            return redirect("accounts:login")
+
+        if len(password) < 8:
+            messages.error(request, "رمزعبور باید حداقل 8 کاراکتر باشد.")
+            return redirect("accounts:login")
 
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
             login(request, user)
-            messages.success(request, 'با موفقیت وارد شدید')
-            # return redirect('website:index')
+            messages.success(request, 'با موفقیت وارد شدید.')
+            return redirect('website:index')
         else:
-            messages.error(request, "نام کاربری یا رمز عبور اشتباه است")
+            messages.error(request, "ایمیل یا رمزعبور اشتباه است.")
 
     return render(request, 'accounts/login.html')
 
