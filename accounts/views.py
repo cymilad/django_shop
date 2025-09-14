@@ -122,7 +122,48 @@ def signup_user(request):
 
 
 def reset_password_user(request):
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip()
+        try:
+            user = User.objects.get(email=email)
+            signer = TimestampSigner()
+            token = signer.sign(user.pk)
+            reset_link = f"{settings.SITE_URL}{reverse('accounts:reset_password_confirm', kwargs={'token': token})}"
+
+            subject = "بازیابی رمز عبور"
+            message = f"سلام\nبرای تغییر رمز عبور خود روی لینک زیر کلیک کنید:\n{reset_link}\nاین لینک ۲۴ ساعت معتبر است."
+            send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email])
+            messages.success(request, "لینک بازیابی رمز عبور به ایمیل شما ارسال شد.")
+
+        except User.DoesNotExist:
+            messages.error(request, "ایمیل وارد شده یافت نشد.")
+        return redirect("accounts:login")
     return render(request, 'accounts/reset_password.html')
 
-def password_reset_confirm(request, token):
-    return render(request, 'accounts/reset_password_confirm.html')
+
+def reset_password_confirm(request, token):
+    signer = TimestampSigner()
+    try:
+        user_pk = signer.unsign(token, max_age=60*2)
+        user = User.objects.get(pk=user_pk)
+    except (BadSignature, SignatureExpired, User.DoesNotExist):
+        messages.error(request, "لینک بازیابی نامعتبر یا منقضی شده است.")
+        return redirect("accounts:login")
+
+    if request.method == 'POST':
+        password = request.POST.get("password", "").strip()
+        confirm_password = request.POST.get("confirm_password", "").strip()
+
+        if len(password) < 8:
+            messages.error(request, 'رمز عبور باید حداقل ۸ کاراکتر باشد.')
+            return render(request, "accounts/reset_password_confirm.html")
+
+        if password != confirm_password:
+            messages.error(request, "رمز عبور و تکرار با هم مطابقت ندارد.")
+            return render(request, "accounts/reset_password_confirm.html")
+
+        user.set_password(password)
+        user.save()
+        messages.success(request, 'رمز عبور شما با موفقیت تغییر کرد. اکنون می ‌توانید وارد شوید.')
+        return redirect("accounts:login")
+    return render(request, "accounts/reset_password_confirm.html", {"token": token})
