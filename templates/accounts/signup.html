@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    ثبت نام
+{% endblock %}
+
+{% block content %}
+    <div class="container content-space-3 content-space-t-lg-4 content-space-b-lg-3">
+        <div class="flex-grow-1 mx-auto" style="max-width: 28rem;">
+            <!-- Heading -->
+            <div class="text-center mb-5 mb-md-7">
+                <h1 class="h2">فرم ثبت نام</h1>
+                <p>برای ثبت نام کافیست فرم زیر را پر نمایید</p>
+            </div>
+            <!-- End Heading -->
+
+            <!-- Form -->
+            <form action="{% url 'accounts:signup' %}" method="POST">
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <label class="form-label" for="email">ایمیل</label>
+                    <input type="email" class="form-control text-center"
+                           placeholder="test@gmail.com"
+                           value="{{ form_data.email|default:'' }}"
+                           name="email" id="email">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" for="firstname">نام</label>
+                    <input type="text" class="form-control text-center"
+                           value="{{ form_data.firstname|default:'' }}"
+                           placeholder="علیرضا"
+                           name="firstname" id="firstname">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" for="lastname">نام خانوادگی</label>
+                    <input type="text" class="form-control text-center"
+                           value="{{ form_data.lastname|default:'' }}"
+                           placeholder="باقرپور"
+                           name="lastname" id="lastname">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" for="phonenumber">شماره موبایل</label>
+                    <input type="text" class="form-control text-center"
+                           name="phonenumber" id="phonenumber"
+                           value="{{ form_data.phonenumber|default:'' }}"
+                           placeholder="09175751266"
+                           pattern="^09\d{9}$" maxlength="11">
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label" for="password">کلمه عبور</label>
+                    <div class="position-relative">
+                        <input type="password"
+                               class="form-control form-control-lg text-center pe-5"
+                               name="password"
+                               id="password"
+                               placeholder="*******">
+                        <i data-toggle="password" data-target="password"
+                           class="bi bi-eye position-absolute top-50 end-0 translate-middle-y me-3"
+                           style="cursor: pointer; font-size: 1.2rem;"></i>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label" for="confirm_password">تایید رمز عبور</label>
+                    <div class="position-relative">
+                        <input type="password"
+                               class="form-control form-control-lg text-center pe-5"
+                               name="confirm_password" id="confirm_password"
+                               placeholder="*******">
+                        <i data-toggle="password" data-target="confirm_password"
+                           class="bi bi-eye position-absolute top-50 end-0 translate-middle-y me-3"
+                           style="cursor: pointer; font-size: 1.2rem;"></i>
+                    </div>
+                </div>
+
+                <div class="d-grid mb-3">
+                    <button type="submit" class="btn btn-primary">ثبت نام</button>
+                </div>
+
+                <div class="text-center">
+                    <p>
+                        از قبل حساب کاربری دارید؟
+                        <a class="link" href="{% url 'accounts:login' %}">
+                            از اینجا وارد شوید
+                        </a>
+                    </p>
+                </div>
+            </form>
+            <!-- End Form -->
+
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block js %}
+    <script>
+        // only number input
+        document.getElementById('phonenumber').addEventListener('input', function () {
+            this.value = this.value.replace(/[^0-9]/g, '');
+            if (this.value.length > 11) {
+                this.value = this.value.slice(0, 11); // Limit on 11 numberic
+            }
+        });
+    </script>
+
+    <script>
+        // show messages alert
+        const djangoMessages = [
+            {% for message in messages %}
+                {
+                    text: "{{ message|escapejs }}",
+                    tags: "{{ message.tags }}"
+                }
+                {% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ];
+
+        djangoMessages.forEach(m => {
+            let bg = "#2196F3";
+            if (m.tags === "success") bg = "#4CAF50";
+            else if (m.tags === "error") bg = "#F44336";
+            else if (m.tags === "warning") bg = "#FFC107";
+
+            Toastify({
+                text: m.text,
+                duration: 10000,
+                gravity: "top",
+                position: "right",
+                backgroundColor: bg,
+                close: true
+            }).showToast();
+        });
+    </script>
+
+
+    <script>
+        // eye password
+        const togglePasswordIcons = document.querySelectorAll('[data-toggle="password"]');
+
+        togglePasswordIcons.forEach(icon => {
+            icon.addEventListener("click", function () {
+                const targetId = this.dataset.target; // field selected
+                const passwordField = document.getElementById(targetId);
+
+                // change type fields
+                const type = passwordField.getAttribute("type") === "password" ? "text" : "password";
+                passwordField.setAttribute("type", type);
+
+                // change icon
+                this.classList.toggle("bi-eye");
+                this.classList.toggle("bi-eye-slash");
+            });
+        });
+    </script>
+
+{% endblock %}
+
+

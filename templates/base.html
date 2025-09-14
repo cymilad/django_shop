@@ -155,7 +155,23 @@
                         </button>
                         <!-- End Shopping Cart -->
 
-                        <a class="btn btn-primary btn-transition" href="{% url 'accounts:login' %}">ورود</a>
+                        {% if request.user.is_authenticated %}
+                            <button class="btn btn-ghost-secondary btn-icon" id="dropdownMenuLink"
+                                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span class="avatar avatar-sm avatar-circle">
+                                    <img class="avatar-img" src="{{ request.user.user_profile.image.url }}"
+                                         alt="Avatar">
+                                </span>
+                            </button>
+
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                                <a class="dropdown-item" href="">پروفایل</a>
+                                <a class="dropdown-item" href="{% url 'accounts:logout' %}">خروج</a>
+                            </div>
+                        {% else %}
+                            <a class="btn btn-primary btn-transition" href="{% url 'accounts:login' %}">ورود</a>
+                        {% endif %}
+
                     </li>
                 </ul>
             </div>
