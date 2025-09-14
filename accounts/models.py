@@ -4,11 +4,11 @@ from django.db.models.signals import post_save
 from django.contrib.auth.base_user import BaseUserManager
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
-from .validators import validate_iranian_cellphone_number
 from django.core.mail import send_mail
 from django.urls import reverse
 from django.conf import settings
 from django.core.signing import TimestampSigner
+from .validators import validate_iranian_cellphone_number
 
 
 class UserType(models.IntegerChoices):
