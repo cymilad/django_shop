@@ -137,7 +137,7 @@ def reset_password_user(request):
 
         except User.DoesNotExist:
             messages.error(request, "ایمیل وارد شده یافت نشد.")
-        return redirect("accounts:login")
+        return redirect("accounts:reset_password")
     return render(request, 'accounts/reset_password.html')
 
 
