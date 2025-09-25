@@ -9,10 +9,12 @@ def index(request):
     categories = Category.objects.all()
     products = Product.objects.filter(status=StatusType.publish)
 
-    if search_q := request.GET.get("q"):
+    search_q = request.GET.get("q")
+    if search_q :
         products = products.filter(title__icontains=search_q)
 
-    if category_id := request.GET.get("category_id"):
+    category_id = request.GET.get("category_id")
+    if category_id:
         products = products.filter(category__id=category_id)
 
     min_price = request.GET.get("min_price")
@@ -25,7 +27,8 @@ def index(request):
         max_price = max_price.replace(",", "")
         products = products.filter(price__lte=max_price)
 
-    if order_by := request.GET.get("order_by"):
+    order_by = request.GET.get("order_by")
+    if order_by:
         try:
             products = products.order_by(order_by)
         except FieldError:
