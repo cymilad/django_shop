@@ -1,4 +1,5 @@
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.utils.text import slugify
 from django.db import models
 from decimal import Decimal
 
@@ -19,6 +20,11 @@ class Category(models.Model):
 
     def __str__(self):
         return self.title
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.title)
+        super().save(*args, **kwargs)
 
 
 class Product(models.Model):
@@ -53,6 +59,11 @@ class Product(models.Model):
 
     def is_published(self):
         return self.status == StatusType.publish.value
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.title)
+        super().save(*args, **kwargs)
 
 
 class Image(models.Model):
