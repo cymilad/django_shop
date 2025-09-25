@@ -34,8 +34,8 @@ def index(request):
     page_size = request.GET.get("page_size")
     try:
         page_size = int(page_size)
-    except (TypeError ,ValueError):
-        page_size = 3
+    except (TypeError, ValueError):
+        page_size = 6
 
     pageinator = Paginator(products, page_size)
     page_number = request.GET.get('page')
@@ -57,7 +57,13 @@ def index(request):
 def product_detail(request, slug):
     products = get_object_or_404(Product, status=StatusType.publish, slug=slug)
 
+    similar_product = Product.objects.filter(
+        status=StatusType.publish,
+        category__in=products.category.all()
+    ).exclude(id=products.id).distinct().order_by('-id')[:4]
+
     data = {
         'products': products,
+        'similar_product': similar_product,
     }
     return render(request, 'shop/products-detail.html', data)
