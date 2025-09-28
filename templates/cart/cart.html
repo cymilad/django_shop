@@ -90,7 +90,10 @@
                                                             </span>
                                                         </div>
                                                         <div>
-                                                            <span class="small me-2">قیمت هر واحد:<span class="fw-bold"> {{ item.product.get_price|intcomma:False }} تومان </span> </span>
+                                                            <span class="small me-2">
+                                                                قیمت هر واحد:
+                                                                <span class="fw-bold"> {{ item.product.get_price|intcomma:False }} تومان </span>
+                                                            </span>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -101,7 +104,8 @@
                                                 <div class="row">
                                                     <div class="col-auto">
                                                         <!-- Select -->
-                                                        <select class="form-select form-select-sm mb-3">
+                                                        <select class="form-select form-select-sm mb-3"
+                                                                onchange="changeProductQuantity('{{ item.product_id }}', this.value)">
                                                             {% with ''|center:item.product.stock as range %}
                                                                 {% for _ in range %}
                                                                     <option value="{{ forloop.counter }}"
@@ -117,14 +121,15 @@
                                                     </div>
 
                                                     <div class="col-auto">
-                                                        <div class="d-grid gap-2">
-                                                            <a class="link-sm link-secondary small" href="javascript:;">
+                                                        <div class="d-grid gap-2 d-flex justify-content-between">
+                                                            <button type="button" class=" btn btn-sm btn-icon text-danger border-0 mx-1"
+                                                                    onclick="removeProduct('{{ item.product_id }}')">
                                                                 <i class="bi-trash me-1 text-danger"></i> حذف
-                                                            </a>
+                                                            </button>
 
-                                                            <a class="link-sm link-secondary small" href="javascript:;">
-                                                                <i class="bi-heart-fill ms-1 text-info"></i>جزو علایق
-                                                            </a>
+                                                            <button class=" btn btn-sm btn-icon text-secondary border-0 mx-1">
+                                                                <i class="bi-heart-fill ms-1 text-info"></i>علایق
+                                                            </button>
                                                         </div>
                                                     </div>
                                                     <!-- End Col -->
@@ -222,4 +227,76 @@
         <!-- End Row -->
     </div>
     <!-- End Content -->
+{% endblock %}
+
+{% block js %}
+
+    <script>
+        function changeProductQuantity(product_id, quantity) {
+            $.ajax({
+                url: "{% url 'cart:update_product' %}",
+                method: "POST",
+                data: {
+                    product_id: product_id,
+                    quantity: quantity,
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function (response) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: "ویرایش محصول",
+                        text: 'تعداد محصول با موفقیت به ‌روز شد.',
+                        confirmButtonText: 'باشه'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.reload();
+                        }
+                    });
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'خطا',
+                        text: 'به‌ روزرسانی محصول انجام نشد.',
+                    });
+                    console.log(errorThrown);
+                }
+            })
+        }
+    </script>
+
+
+    <script>
+        function removeProduct(product_id) {
+            $.ajax({
+                url: "{% url 'cart:remove_product' %}",
+                method: "POST",
+                data: {
+                    product_id: product_id,
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function (response) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: "حذف محصول",
+                        text: 'حذف محصول با موفقیت به ‌روز شد.',
+                        confirmButtonText: 'باشه'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.reload();
+                        }
+                    });
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'خطا',
+                        text: 'حذف محصول انجام نشد.',
+                    });
+                    console.log(errorThrown);
+                }
+            })
+        }
+    </script>
+
 {% endblock %}
