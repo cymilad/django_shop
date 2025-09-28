@@ -21,6 +21,7 @@
     <link rel="stylesheet" href="{% static 'css/vendor.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/toastr.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/toastify.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/sweetalert2.min.css' %}">
     <link rel="stylesheet" href="{% static 'vendor/bootstrap-icons/font/bootstrap-icons.css' %}">
 
 
@@ -80,13 +81,12 @@
                         <!-- End Search -->
 
                         <!-- Shopping Cart -->
-                        <button type="button" class="btn btn-ghost-secondary btn-icon" type="button"
-                                data-bs-toggle="offcanvas"
-                                data-bs-target="#offcanvasNavbarShoppingCart"
-                                aria-controls="offcanvasNavbarShoppingCart">
+                        <a href="{% url 'cart:cart_index' %}" class="btn btn-ghost-secondary btn-icon">
                             <i class="bi-basket"></i>
-                            <span class="cart-item-count">0</span>
-                        </button>
+                            <span class="cart-item-count" id="total-cart-item-count">
+                                {{ cart.get_total_quantity }}
+                            </span>
+                        </a>
                         <!-- End Shopping Cart -->
 
                         {% if request.user.is_authenticated %}
@@ -459,8 +459,45 @@
     })()
 </script>
 
+<!-- My JS -->
 <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
 <script src="{% static 'js/toastify.js' %}"></script>
+<script src="{% static 'js/sweetalert2.all.min.js' %}"></script>
+
+
+<!-- Add Product to cart -->
+<script>
+    function addToCart(product_id) {
+        console.log(product_id)
+
+        $.ajax({
+            url: "{% url 'cart:add_product' %}",
+            method: "POST",
+            data: {
+                product_id: product_id,
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+            },
+            success: function (response) {
+                $("#total-cart-item-count").html(response.total_quantity) // Update number cart after add product
+                console.log(response);
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'موفقیت',
+                    text: 'محصول با موفقیت به سبد خرید اضافه شد.',
+                    showConfirmButton: true,
+                    confirmButtonText: 'باشه',
+                    {#timer: 2000#}
+                })
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log(errorThrown);
+            }
+        })
+    }
+</script>
+<!-- End Add Product to cart -->
+
 
 
 {% block js %} {% endblock %}
