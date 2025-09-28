@@ -83,10 +83,14 @@
                                                             <span class="small me-2">دسته بندی:</span>
                                                             <span class="fw-semibold small">
                                                                 {% for category in item.product.category.all %}
-                                                                    <a class="text-muted" href="#">{{ category.title }}</a>
+                                                                    <a class="text-muted"
+                                                                       href="#">{{ category.title }}</a>
                                                                     {% if not forloop.last %} ,{% endif %}
                                                                 {% endfor %}
                                                             </span>
+                                                        </div>
+                                                        <div>
+                                                            <span class="small me-2">قیمت هر واحد:<span class="fw-bold"> {{ item.product.get_price|intcomma:False }} تومان </span> </span>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -100,7 +104,10 @@
                                                         <select class="form-select form-select-sm mb-3">
                                                             {% with ''|center:item.product.stock as range %}
                                                                 {% for _ in range %}
-                                                                    <option value="{{ forloop.counter }}" {% if forloop.counter == item.quantity %} selected {% endif %}>
+                                                                    <option value="{{ forloop.counter }}"
+                                                                            {% if forloop.counter == item.quantity %}
+                                                                            selected
+                                                                            {% endif %}>
                                                                         {{ forloop.counter }}
                                                                     </option>
                                                                 {% endfor %}
