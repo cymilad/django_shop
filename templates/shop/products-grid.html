@@ -189,16 +189,17 @@
                             <!-- Card -->
                             <div class="card card-bordered shadow-none text-center h-100">
                                 <div class="card-pinned">
-                                    <img class="card-img-top" src="{{ product.image.url }}"
-                                         alt="{{ product.title }}">
+                                    <img class="card-img-top" src="{{ product.image.url }}" alt="{{ product.title }}">
 
                                     <div class="card-pinned-top-end">
-                                        <button type="button"
-                                                class="btn btn-outline-secondary btn-xs btn-icon rounded-circle"
-                                                data-bs-toggle="tooltip" data-bs-placement="top"
-                                                title="افزودن به علایق">
-                                            <i class="bi-heart"></i>
-                                        </button>
+                                        {% if request.user.is_authenticated %}
+                                            <button type="button"
+                                                    class="btn btn-outline-secondary btn-xs btn-icon rounded-circle"
+                                                    data-bs-toggle="tooltip" data-bs-placement="top"
+                                                    title="افزودن به علایق">
+                                                <i class="bi-heart"></i>
+                                            </button>
+                                        {% endif %}
                                     </div>
                                 </div>
 
@@ -275,7 +276,8 @@
                         <li class="page-item {% if not page_obj.has_previous %}disabled{% endif %}">
                             {% if page_obj.has_previous %}
                                 <a class="page-link"
-                                   href="?page={{ page_obj.previous_page_number }}{% if query_string %}&{{ query_string }}{% endif %}"
+                                   href="?page=
+                                           {{ page_obj.previous_page_number }}{% if query_string %}&{{ query_string }}{% endif %}"
                                    aria-label="Previous">
                                     <span aria-hidden="true"><i class="bi-chevron-double-right small"></i></span>
                                 </a>
@@ -315,7 +317,8 @@
                         <li class="page-item {% if not page_obj.has_next %}disabled{% endif %}">
                             {% if page_obj.has_next %}
                                 <a class="page-link"
-                                   href="?page={{ page_obj.next_page_number }}{% if query_string %}&{{ query_string }}{% endif %}"
+                                   href="?page=
+                                           {{ page_obj.next_page_number }}{% if query_string %}&{{ query_string }}{% endif %}"
                                    aria-label="Next">
                                     <span aria-hidden="true"><i class="bi-chevron-double-left small"></i></span>
                                 </a>
