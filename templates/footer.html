@@ -1,0 +1,149 @@
+{% load static %}
+
+<footer class="bg-dark">
+    <div class="container pb-1 pb-lg-3">
+
+        <div class="row content-space-t-1">
+            <div class="col-lg-3 mb-6 mb-lg-0">
+                <!-- Logo -->
+                <div class="mb-3">
+                    <a class="navbar-brand" href="{% url 'website:index' %}" aria-label="Space">
+                        <img class="navbar-brand-logo" src="{% static 'svg/logos/logo-white.svg' %}"
+                             alt="Image"/>
+                    </a>
+                </div>
+                <!-- End Logo -->
+
+                <ul class="list-unstyled list-py-1">
+                    <li class="mb-1">
+                        <a class="link-sm link-light">
+                            <i class="bi-geo-alt-fill me-1 text-warning"></i>
+                            ایران، بوشهر
+                        </a>
+                    </li>
+                    <li>
+                        <a class="link-sm link-light" href="tel:09170000000">
+                            <i class="bi-telephone-fill me-1 text-warning"></i>
+                            09170000000
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="col-sm mb-5 mb-sm-0">
+                <h5 class="text-white mb-3">سایت</h5>
+
+                <ul class="list-unstyled list-py-1 mb-0">
+                    <li>
+                        <a class="link-sm link-light" href="{% url 'website:about' %}">درباره ما</a>
+                    </li>
+
+                    <li>
+                        <a class="link-sm link-light" href="#">بلاگ</a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="col-sm mb-5 mb-sm-0">
+                <h5 class="text-white mb-3">تماس با ما</h5>
+                <ul class="list-unstyled list-py-1 mb-0">
+                    <li>
+                        <a class="link-sm link-light" href="{% url 'website:contact' %}">
+                            ارتباط با ما
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="col-sm">
+                <h5 class="text-white mb-3">حساب کاربری</h5>
+                <ul class="list-unstyled list-py-1 mb-5">
+                    <li>
+                        <a class="link-sm link-light" href="{% url 'dashboard:home' %}">
+                             داشبورد
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+
+        <div class="border-top border-white-10 my-7"></div>
+
+        <div class="row mb-5">
+            <div class="col-sm mb-3 mb-sm-0">
+                <!-- Socials -->
+                <ul class="list-inline list-separator list-separator-light mb-0">
+                    <li class="list-inline-item">
+                        <a class="link-sm link-light" href="#">قوانین و مقررات</a>
+                    </li>
+                    <li class="list-inline-item">
+                        <a class="link-sm link-light" href="#">نقشه سایت</a>
+                    </li>
+                </ul>
+                <!-- End Socials -->
+            </div>
+
+            <!-- Social Icons -->
+            <div class="col-sm-auto text-center">
+                <a href="#" class="mx-2 text-decoration-none social-icon telegram">
+                    <i class="bi bi-telegram fs-5"></i>
+                </a>
+                <a href="#" class="mx-2 text-decoration-none social-icon youtube">
+                    <i class="bi bi-youtube fs-5"></i>
+                </a>
+                <a href="#" class="mx-2 text-decoration-none social-icon github">
+                    <i class="bi bi-github fs-5"></i>
+                </a>
+                <a href="#" class="mx-2 text-decoration-none social-icon instagram">
+                    <i class="bi bi-instagram fs-5"></i>
+                </a>
+                <a href="#" class="mx-2 text-decoration-none social-icon linkedin">
+                    <i class="bi bi-linkedin fs-5"></i>
+                </a>
+            </div>
+
+            <style>
+                .social-icon {
+                    color: #ccc;
+                    transition: all 0.3s ease;
+                }
+
+                .social-icon.telegram:hover {
+                    color: #2AABEE;
+                }
+
+                .social-icon.youtube:hover {
+                    color: #FF0000;
+                }
+
+                .social-icon.github:hover {
+                    color: #f5f5f5;
+                }
+
+                .social-icon.instagram:hover {
+                    color: #E4405F;
+                }
+
+                .social-icon.linkedin:hover {
+                    color: #0A66C2;
+                }
+
+                /* افکت نرم برای هاور */
+                .social-icon:hover {
+                    transform: translateY(-3px);
+                }
+            </style>
+
+        </div>
+
+        <div class="mb-2 d-flex justify-content-center align-items-center gap-2">
+            <i class="bi bi-heart-fill text-danger"></i>
+            <p class="mb-0 small text-white">
+                این وب‌ سایت با عشق توسط
+                <span class="fw-bold text-warning">میلاد رنجبر</span> طراحی شده است.
+            </p>
+        </div>
+
+    </div>
+</footer>
