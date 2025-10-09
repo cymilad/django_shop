@@ -54,8 +54,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)  # Access to the administration section
     is_active = models.BooleanField(default=False)  # Inactive until email confirmation
     is_verified = models.BooleanField(default=False)  # Account verification
-    type = models.IntegerField(choices=UserType.choices,
-                               default=UserType.customer.value)  # User type (customer/admin/superuser)
+    type = models.IntegerField(choices=UserType.choices,default=UserType.customer.value)  # User type (customer/admin/superuser)
     created_date = models.DateTimeField(auto_now_add=True)  # Creation time
     updated_date = models.DateTimeField(auto_now=True)  # Time last update
 
