@@ -42,8 +42,13 @@
                         <div class="d-flex align-items-center">
                             <!-- Avatar -->
                             <label class="avatar avatar-xl avatar-circle" for="avatarUploader">
-                                <img id="avatarImg" class="avatar-img" src="{% static 'img/160x160/img3.jpg' %}"
-                                     alt="Image Profile">
+                                {% if request.user.user_profile.image.url %}
+                                    <img id="avatarImg" class="avatar-img"
+                                         src="{{ request.user.user_profile.image.url }}"
+                                         alt="Image Profile">
+                                {% else %}
+                                    <img class="avatar-img" src="{% static 'img/160x160/img1.jpg' %}" alt="Image"/>
+                                {% endif %}
                             </label>
 
                             <div class="d-grid d-sm-flex gap-2 me-4">
