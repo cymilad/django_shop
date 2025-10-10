@@ -1,4 +1,4 @@
-{% extends 'dashboard/admin/base.html' %}
+{% extends 'dashboard/customer/base.html' %}
 {% load static %}
 {% load humanize %}
 
@@ -82,6 +82,7 @@
                     </div>
                 </div>
 
+
                 <div class="row mb-4">
                     <div class="col-sm-12 offset-sm-4">
                         <div class="position-relative p-3 rounded-3"
@@ -134,7 +135,7 @@
                                 title: 'swal-title-lg'  // کلاس برای متن بزرگ
                             }
                         }).then(() => {
-                            window.location.href = "{% url 'dashboard:admin:home' %}";
+                            window.location.href = "{% url 'dashboard:customer:home' %}";
                         });
                     {% else %}
                         Swal.fire({

@@ -1,10 +1,12 @@
-from django.shortcuts import render, redirect
-from django.http import HttpResponseForbidden
-from django.contrib import messages
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
-from functools import wraps
+from django.views.decorators.http import require_POST
+from django.http import HttpResponseForbidden
 from accounts.models import Profile, UserType
+from django.contrib import messages
+from functools import wraps
+import os
 
 
 def admin_required(view_func):
@@ -38,7 +40,7 @@ def security_edit(request):
 
         # Checking the consistency of two new passwords
         if new_password != confirm_password:
-            messages.error(request, "رمز عبور جدید و تکرار آن مطابقت ندارند")
+            messages.error(request, "رمزعبور جدید و تکرار آن مطابقت ندارند")
             return redirect("dashboard:admin:security-edit")
 
         # Check current password
@@ -48,7 +50,7 @@ def security_edit(request):
 
         # Minimum password length validation (8)
         if len(new_password) < 8:
-            messages.error(request, 'رمز عبور باید حداقل 8 کاراکتر باشد')
+            messages.error(request, 'رمزعبور باید حداقل 8 کاراکتر باشد')
             return redirect("dashboard:admin:security-edit")
 
         # Change passowrd
@@ -84,7 +86,7 @@ def profile_edit(request):
             profile.last_name = last_name
             profile.phone_number = phone_number
             profile.save()
-            messages.success(request, 'بروز رسانی پروفایل با موفقیت انجام شد')
+            messages.success(request, 'بروزرسانی پروفایل با موفقیت انجام شد')
             return redirect("dashboard:admin:profile-edit")
 
     data = {
@@ -92,3 +94,39 @@ def profile_edit(request):
     }
 
     return render(request, 'dashboard/admin/profile/profile-edit.html', data)
+
+
+@admin_required
+@require_POST
+def profile_edit_image(request):
+    profile = get_object_or_404(Profile, user=request.user)
+
+    if "image" not in request.FILES:
+        messages.error(request, "ارسال تصویر با مشکل مواجه شده لطفاً مجدد بررسی و تلاش نمایید")
+        return redirect("dashboard:admin:profile-edit")
+
+    image = request.FILES["image"]
+    allowed_types = ["image/jpeg", "image/png"]
+    allowed_extensions = [".jpg", ".jpeg", ".png"]
+
+    # review content type
+    if image.content_type not in allowed_types:
+        messages.error(request, "فقط فرمت‌های JPG و PNG مجاز هستند")
+        return redirect(f"dashboard:admin:profile-edit")
+
+    ext = os.path.splitext(image.name)[1].lower()
+    if ext not in allowed_extensions:
+        messages.error(request, 'فقط فرمت‌های JPG و PNG مجاز هستند')
+        return redirect("dashboard:admin:profile-edit")
+
+    profile.image = image
+
+    profile.image = request.FILES["image"]
+
+    try:
+        profile.save()
+        messages.success(request, "بروزرسانی تصویر پروفایل با موفقیت انجام شد")
+    except:
+        messages.error(request, "ارسال تصویر با مشکل مواجه شده لطفاً مجدد بررسی و تلاش نمایید")
+
+    return redirect("dashboard:admin:profile-edit")

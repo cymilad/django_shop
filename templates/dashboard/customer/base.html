@@ -49,16 +49,9 @@
                     </div>
 
                     <!-- Breadcrumb -->
-                    <nav aria-label="breadcrumb">
-                        <ol class="breadcrumb breadcrumb-light mb-0">
-                            <li class="breadcrumb-item">
-                                حساب
-                            </li>
-                            <li class="breadcrumb-item active" aria-current="page">
-                                داشبورد کاربر
-                            </li>
-                        </ol>
-                    </nav>
+                    {% block breadcrumb %}
+
+                    {% endblock %}
                     <!-- End Breadcrumb -->
 
                 </div>
@@ -73,14 +66,13 @@
 
                     <!-- Responsive Toggle Button -->
                     <button class="navbar-toggler d-lg-none" type="button" data-bs-toggle="collapse"
-                            data-bs-target="#sidebarNav" aria-controls="sidebarNav" aria-expanded="false"
-                            aria-label="Toggle navigation">
+                            data-bs-target="#sidebarNav" aria-controls="sidebarNav" aria-expanded="false">
                           <span class="navbar-toggler-default">
                             <i class="bi-list"></i>
                           </span>
                         <span class="navbar-toggler-toggled">
-                        <i class="bi-x"></i>
-              </span>
+                            <i class="bi-x"></i>
+                        </span>
                     </button>
                     <!-- End Responsive Toggle Button -->
                 </div>
@@ -144,8 +136,7 @@
         <div class="container">
             <div class="w-lg-75 mx-lg-auto">
                 <div class="d-flex justify-content-end mb-3">
-                    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas"
-                            aria-label="Close"></button>
+                    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas"></button>
                 </div>
 
                 <div class="mb-7">
@@ -154,8 +145,8 @@
                         <!-- Input Card -->
                         <div class="input-card">
                             <div class="input-card-form">
-                                <input type="text" class="form-control form-control-lg" placeholder="جستجو محصولات"
-                                       aria-label="جستجو محصولات"/>
+                                <input type="text" class="form-control form-control-lg"
+                                       placeholder="جستجو محصولات" />
                             </div>
                             <button type="button" class="btn btn-primary btn-lg">
                                 جستجو

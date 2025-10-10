@@ -27,20 +27,20 @@
                 <!-- List -->
                 <ul class="nav nav-sm nav-tabs nav-vertical mb-4">
                     <li class="nav-item">
-                        <a class="nav-link" href="">
+                        <a class="nav-link" href="{% url 'dashboard:customer:home' %}">
                             <i class="bi-person-badge nav-icon"></i>
                             داشبورد
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="">
+                        <a class="nav-link" href="{% url 'dashboard:customer:security-edit' %}">
                             <i class="bi-shield-shaded nav-icon"></i>
                             امنیت
                         </a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link" href="">
+                        <a class="nav-link" href="{% url 'dashboard:customer:profile-edit' %}">
                             <i class="bi-sliders nav-icon"></i>
                             تنظیمات پروفایل
                         </a>
@@ -53,19 +53,19 @@
                 <!-- List -->
                 <ul class="nav nav-sm nav-tabs nav-vertical mb-4">
                     <li class="nav-item">
-                        <a class="nav-link " href="">
+                        <a class="nav-link" href="">
                             <i class="bi-basket nav-icon"></i> سفارشات شما
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link " href="">
+                        <a class="nav-link" href="">
                             <i class="bi-heart nav-icon"></i>لیست علایق<span
                                 class="badge bg-soft-dark text-dark rounded-pill nav-link-badge">2</span>
                         </a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link " href="">
+                        <a class="nav-link" href="">
                             <i class="bi-geo-alt nav-icon"></i> نشانی
                         </a>
                     </li>
@@ -79,7 +79,7 @@
                     <!-- List -->
                     <ul class="nav nav-sm nav-tabs nav-vertical">
                         <li class="nav-item">
-                            <a class="nav-link" href="#">
+                            <a class="nav-link" href="{% url 'accounts:logout' %}">
                                 <i class="bi-box-arrow-right nav-icon"></i>
                                 خروج
                             </a>
