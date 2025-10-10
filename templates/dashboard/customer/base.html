@@ -39,7 +39,8 @@
 <!-- ========== MAIN CONTENT ========== -->
 <main id="content" role="main" class="bg-light">
     <!-- Breadcrumb -->
-    <div class="navbar-dark bg-dark" style="background-image: url({% static 'svg/components/wave-pattern-light.svg' %});">
+    <div class="navbar-dark bg-dark"
+         style="background-image: url({% static 'svg/components/wave-pattern-light.svg' %});">
         <div class="container content-space-1 content-space-b-lg-3">
             <div class="row align-items-center">
                 <div class="col">
@@ -64,6 +65,12 @@
                 <!-- End Col -->
 
                 <div class="col-auto">
+                    <div class="d-none d-lg-block">
+                        <a class="btn btn-soft-light btn-sm" href="{% url 'accounts:logout' %}">
+                            خروج
+                        </a>
+                    </div>
+
                     <!-- Responsive Toggle Button -->
                     <button class="navbar-toggler d-lg-none" type="button" data-bs-toggle="collapse"
                             data-bs-target="#sidebarNav" aria-controls="sidebarNav" aria-expanded="false"
@@ -164,6 +171,7 @@
     </div>
 </div>
 
+<script src="{% static 'js/sweetalert2.all.min.js' %}"></script>
 
 <!-- JS Implementing Plugins -->
 <script src="{% static 'js/vendor.min.js' %}"></script>
@@ -225,6 +233,10 @@
         });
     })();
 </script>
-</body>
 
+{% block js %}
+
+{% endblock %}
+
+</body>
 </html>

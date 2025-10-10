@@ -1,0 +1,200 @@
+{% extends 'dashboard/admin/base.html' %}
+{% load static %}
+
+
+{% block title %}
+    داشبورد - ویرایش پروفایل
+{% endblock %}
+
+
+{% block breadcrumb %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb breadcrumb-light mb-0">
+            <li class="breadcrumb-item"> حساب</li>
+            <li class="breadcrumb-item"> داشبورد ادمین</li>
+            <li class="breadcrumb-item active" aria-current="page">
+                تنظیمات پروفایل
+            </li>
+        </ol>
+    </nav>
+{% endblock %}
+
+
+{% block content %}
+
+    <div class="card mb-3">
+        <div class="card-header border-bottom">
+            <h4 class="card-header-title">
+                ویرایش عکس پروفایل
+            </h4>
+        </div>
+
+        <div class="card-body">
+            <!-- Form -->
+            <form>
+                <div class="row mb-4">
+                    <label class="col-sm-3 col-form-label form-label">
+                        عکس پروفایل
+                    </label>
+
+                    <div class="col-sm-9">
+                        <!-- Media -->
+                        <div class="d-flex align-items-center">
+                            <!-- Avatar -->
+                            <label class="avatar avatar-xl avatar-circle" for="avatarUploader">
+                                <img id="avatarImg" class="avatar-img" src="{% static 'img/160x160/img3.jpg' %}"
+                                     alt="Image Profile">
+                            </label>
+
+                            <div class="d-grid d-sm-flex gap-2 me-4">
+                                <div class="form-attachment-btn btn btn-primary btn-sm">
+                                    آپلود عکس
+                                    <input type="file" class="js-file-attach form-attachment-btn-label"
+                                           id="avatarUploader"
+                                           data-hs-file-attach-options='{
+                                              "textTarget": "#avatarImg",
+                                              "mode": "image",
+                                              "targetAttr": "src",
+                                              "resetTarget": ".js-file-attach-reset-img",
+                                              "resetImg": "{% static 'img/160x160/img1.jpg' %}",
+                                              "allowTypes": [".png", ".jpeg", ".jpg"]
+                                           }'>
+                                </div>
+                                <!-- End Avatar -->
+
+                                <button type="button" class="js-file-attach-reset-img btn btn-white btn-sm">
+                                    حذف کردن
+                                </button>
+                            </div>
+                        </div>
+                        <!-- End Media -->
+                    </div>
+                </div>
+            </form>
+            <!-- End Form -->
+        </div>
+    </div>
+
+
+    <div class="card">
+        <div class="card-header border-bottom">
+            <h4 class="card-header-title">ویرایش اطلاعات پروفایل</h4>
+        </div>
+
+        <!-- Body -->
+        <div class="card-body">
+            <form action="." method="post">
+                {% csrf_token %}
+
+                <!-- firstName -->
+                <div class="row mb-4">
+                    <label for="firstNameLabel" class="col-sm-3 col-form-label form-label">
+                        نام
+                    </label>
+
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" name="first_name" id="firstNameLabel"
+                               placeholder="نام" value="{{ profile.first_name }}">
+                    </div>
+                </div>
+                <!-- End Name -->
+
+                <!-- Lastname -->
+                <div class="row mb-4">
+                    <label for="lastNameLabel" class="col-sm-3 col-form-label form-label">
+                        نام خانوادگی
+                    </label>
+
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" name="last_name" id="lastNameLabel"
+                               placeholder="نام خانوادگی" value="{{ profile.last_name }}">
+                    </div>
+                </div>
+                <!-- End Lastname -->
+
+                <!-- Email -->
+                <div class="row mb-4">
+                    <label for="emailLabel" class="col-sm-3 col-form-label form-label">
+                        ایمیل
+                    </label>
+
+                    <div class="col-sm-9">
+                        <input type="email" class="form-control" name="email" id="emailLabel" disabled readonly
+                               placeholder="test@gmail.com" value="{{ request.user.email }}">
+                    </div>
+                </div>
+                <!-- End Email -->
+
+                <!-- Phone -->
+                <div class="row mb-4">
+                    <label for="phoneLabel" class="col-sm-3 col-form-label form-label">
+                        شماره موبایل
+                    </label>
+
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" name="phone_number" id="phoneLabel"
+                               placeholder="09171234567" value="{{ profile.phone_number }}">
+                    </div>
+                </div>
+                <!-- End Phone -->
+
+                <!-- Footer -->
+                <div class="card-footer pt-0">
+                    <div class="d-flex justify-content-end gap-3">
+                        <a href="{% url 'dashboard:admin:profile-edit' %}" class="btn btn-danger">لغو</a>
+                        <button type="submit" class="btn btn-primary">ذخیره تغییرات</button>
+                    </div>
+                </div>
+                <!-- End Footer -->
+
+            </form>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block js %}
+    {% if messages %}
+        <script>
+            window.addEventListener("load", function () {
+                {% for message in messages %}
+                    {% if 'success' in message.tags %}
+                        Swal.fire({
+                            icon: 'success',
+                            title: '{{ message|escapejs }}',
+                            confirmButtonText: "باشه",
+                            showConfirmButton: true,
+                            customClass: {
+                                title: 'swal-title-lg'  // کلاس برای متن بزرگ
+                            }
+                        }).then(() => {
+                            window.location.href = "{% url 'dashboard:admin:profile-edit' %}";
+                        });
+                    {% else %}
+                        Swal.fire({
+                            icon: "{% if 'error' in message.tags %}error{% elif 'warning' in message.tags %}
+                                warning{% else %}info{% endif %}",
+                            title: '{{ message|escapejs }}',
+                            confirmButtonText: "باشه",
+                            confirmButtonColor: "#3085d6",
+                            customClass: {
+                                title: 'swal-title-sm'  // کلاس برای متن کوچک
+                            }
+                        });
+                    {% endif %}
+                {% endfor %}
+            });
+        </script>
+
+        <style>
+            .swal-title-lg {
+                font-size: 1.5rem; /* تغییر فونت مسیج بزرگ‌تر */
+            }
+
+            .swal-title-sm {
+                font-size: 1.5rem; /* تغییر فونت مسیج کوچک‌تر */
+            }
+        </style>
+
+    {% endif %}
+{% endblock %}

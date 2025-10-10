@@ -13,8 +13,8 @@
 
                     </div>
 
-                    <h4 class="card-title mb-2">غلامسین ادیبی</h4>
-                    <p class="card-text small">ghloo1996@gmail.com</p>
+                    <h4 class="card-title mb-2">{{ request.user.user_profile.get_fullname }}</h4>
+                    <p class="card-text small">{{ request.user.email }}</p>
                 </div>
                 <!-- End Avatar -->
 
