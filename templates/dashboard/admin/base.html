@@ -164,11 +164,9 @@
     </div>
 </div>
 
-{% block js %}
-
-{% endblock %}
 
 <script src="{% static 'js/sweetalert2.all.min.js' %}"></script>
+<script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
 
 <!-- JS Implementing Plugins -->
 <script src="{% static 'js/vendor.min.js' %}"></script>
@@ -230,6 +228,11 @@
         });
     })();
 </script>
+
+
+{% block js %}
+
+{% endblock %}
 
 </body>
 </html>

@@ -3,8 +3,11 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.http import HttpResponseForbidden
-from accounts.models import Profile, UserType
 from django.contrib import messages
+from django.core.paginator import Paginator
+from django.core.exceptions import FieldError
+from accounts.models import Profile, UserType
+from shop.models import Product, Category
 from functools import wraps
 import os
 
@@ -130,3 +133,51 @@ def profile_edit_image(request):
         messages.error(request, "ارسال تصویر با مشکل مواجه شده لطفاً مجدد بررسی و تلاش نمایید")
 
     return redirect("dashboard:admin:profile-edit")
+
+
+@admin_required
+def products(request):
+    queryset = Product.objects.all()
+
+    search_q = request.GET.get("q")
+    if search_q:
+        queryset = queryset.filter(title__icontains=search_q)
+
+    category_id = request.GET.get("category_id")
+    if category_id:
+        queryset = queryset.filter(category__id=category_id)
+
+    min_price = request.GET.get("min_price")
+    if min_price:
+        queryset = queryset.filter(price__gte=min_price)
+
+    max_price = request.GET.get("max_price")
+    if max_price:
+        queryset = queryset.filter(price__lte=max_price)
+
+    order_by = request.GET.get("order_by")
+    if order_by:
+        try:
+            queryset = queryset.order_by(order_by)
+        except FieldError:
+            pass
+
+    page_size = request.GET.get("page_size", 10)
+    paginator = Paginator(queryset, page_size)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    params = request.GET.copy()
+    if "page" in params:
+        params.pop("page")
+    query_string = params.urlencode()
+
+    data = {
+        "object_list": page_obj.object_list,
+        "page_obj": page_obj,
+        "total_items": queryset.count(),
+        "categories": Category.objects.all(),
+        "query_string": query_string,
+    }
+
+    return render(request, 'dashboard/admin/products/product-list.html', data)
