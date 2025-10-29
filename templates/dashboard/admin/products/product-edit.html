@@ -101,8 +101,7 @@
 
                             <div class="col-md-12 mb-3">
                                 <label class="mb-2">توضیحات</label>
-                                <textarea style="text-align: justify;" class="form-control" rows="12"
-                                          name="description">{{ product.description }}</textarea>
+                                <textarea style="text-align: justify;" class="form-control" rows="12" name="description">{{ product.description }}</textarea>
                             </div>
 
                             <div class="col-md-12 mb-3">
@@ -125,13 +124,23 @@
                             <a class="btn btn-secondary ms-3" href="{% url 'dashboard:admin:products' %}">
                                 بازگشت
                             </a>
-                            <button type="submit" class="btn btn-danger ms-3">
+
+                            <input type="hidden" id="csrf_token" value="{{ csrf_token }}">
+                            <button type="button" class="btn btn-danger ms-3"
+                                    data-url="{% url 'dashboard:admin:products-delete' product.pk %}"
+                                    onclick="confirmDelete(this, '{{ product.title|escapejs }}')">
                                 حذف
                             </button>
+
                             <a class="btn btn-warning ms-3" target="_blank"
-                               href="{% url 'shop:product_detail' product.slug %}">
+                                    {% if product.status == StatusType.publish.value %}
+                               href="{% url 'shop:product_detail' product.slug %}"
+                                    {% else %}
+                               disabled
+                                    {% endif %}>
                                 نمایش
                             </a>
+
                             <button type="submit" class="btn btn-primary ms-3">
                                 ذخیره تغییرات
                             </button>
@@ -179,17 +188,67 @@
         }
 
         function slugify(titleStr) {
-            titleStr = titleStr.replace(/^\s+|\s+$/g, '');
-            titleStr = titleStr.toLowerCase();
-            //persian support
-            titleStr = titleStr.replace(/[^a-z0-9_\s-ءاأإآؤئبتثجحخدذرزسشصضطظعغفقكلمنهويةى]#u/, '')
-                // Collapse whitespace and replace by -
-                .replace(/\s+/g, '-')
-                // Collapse dashes
-                .replace(/-+/g, '-');
-            slugStr = titleStr;
-            return slugStr;
+            if (!titleStr) return '';
+
+            // حذف فاصله ابتدا و انتها و تبدیل به حروف کوچک
+            titleStr = titleStr.trim().toLowerCase();
+
+            // جایگزینی همه کاراکترهای غیرمجاز با -
+            titleStr = titleStr.replace(/[^a-z0-9\u0600-\u06FF\s-]/g, '-');
+
+            // تبدیل فاصله‌ها به -
+            titleStr = titleStr.replace(/\s+/g, '-');
+
+            // حذف چند خط تیره پشت سر هم
+            titleStr = titleStr.replace(/-+/g, '-');
+
+            // حذف خط تیره ابتدای رشته و انتها
+            titleStr = titleStr.replace(/^-+|-+$/g, '');
+
+            return titleStr;
         }
     </script>
+
+    <script>
+        function confirmDelete(btn, title) {
+            Swal.fire({
+                title: 'تایید حذف',
+                html: `آیا مطمئن هستید می‌خواهید محصول <strong>${title}</strong> را حذف کنید؟`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'بله، حذف کن',
+                cancelButtonText: 'خیر',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const url = btn.dataset.url;
+                    const csrfToken = document.getElementById('csrf_token').value;
+
+                    fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrfToken,
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                        },
+                    }).then(res => res.json()).then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                html: `<span style="font-size:20px; font-weight:bold;">${data.message}</span>`,
+                                confirmButtonText: 'باشه'
+                            }).then(() => {
+                                // بعد از حذف می ‌توانید صفحه محصولات را ریدایرکت کنید
+                                window.location.href = '{% url 'dashboard:admin:products' %}';
+                            });
+                        } else {
+                            Swal.fire('خطا', data.message, 'error');
+                        }
+                    });
+                }
+            });
+        }
+
+    </script>
+
 
 {% endblock %}

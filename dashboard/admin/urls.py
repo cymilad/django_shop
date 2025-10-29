@@ -10,4 +10,5 @@ urlpatterns = [
     path('profile/edit/image/', profile_edit_image, name='profile-edit-image'),
     path('products/', products, name='products'),
     path('products/edit/<int:pk>', products_edit, name='products-edit'),
+    path('products/delete/<int:pk>', products_delete, name='products-delete'),
 ]
