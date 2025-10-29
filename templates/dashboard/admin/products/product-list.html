@@ -118,12 +118,13 @@
                                     {% if item.is_published %}
                                         <span class="badge bg-success">منتشر شده</span>
                                     {% else %}
-                                        <span class="badge bg-danger">پیش نویس</span>
+                                        <span class="badge bg-danger">منتشر نشده</span>
                                     {% endif %}
                                 </td>
                                 <td>%{{ item.discount_percent }}</td>
                                 <td class="d-flex">
-                                    <a class="btn btn-sm btn-icon btn-ghost-secondary" href="">
+                                    <a class="btn btn-sm btn-icon btn-ghost-secondary"
+                                       href="{% url 'dashboard:admin:products-edit' item.pk %}">
                                         <i class="bi-pencil-square"></i>
                                     </a>
                                     {% if item.is_published %}

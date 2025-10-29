@@ -7,7 +7,7 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from django.core.exceptions import FieldError
 from accounts.models import Profile, UserType
-from shop.models import Product, Category
+from shop.models import Product, Category, StatusType
 from functools import wraps
 import os
 
@@ -181,3 +181,52 @@ def products(request):
     }
 
     return render(request, 'dashboard/admin/products/product-list.html', data)
+
+
+@admin_required
+def products_edit(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+
+    if request.method == "POST":
+        title = request.POST.get("title")
+        slug = request.POST.get("slug")
+        description = request.POST.get("description")
+        brief_description = request.POST.get("brief_description")
+        stock = request.POST.get("stock")
+        status = request.POST.get("status")
+        price = request.POST.get("price")
+        discount_percent = request.POST.get("discount_percent")
+        category_ids = request.POST.getlist("category[]")
+
+        if not title or not slug or not description or not brief_description or not stock or not status or not price or not category_ids:
+            messages.error(request, "لطفاً همه فیلد ها را پر کنید")
+            data = {
+                "product": product,
+                "categories": Category.objects.all(),
+                "StatusType": StatusType,
+            }
+            return render(request, 'dashboard/admin/products/product-edit.html', data)
+
+        product.title = title
+        product.slug = slug
+        product.description = description
+        product.brief_description = brief_description
+        product.stock = stock
+        product.status = status
+        product.price = price
+        product.discount_percent = discount_percent
+        product.category.set(category_ids)
+
+        if "image" in request.FILES:
+            product.image = request.FILES.get("image")
+
+        product.save()
+        messages.success(request, "ویرایش محصول با موفقیت انجام شد")
+        return redirect("dashboard:admin:products-edit", pk=product.pk)
+
+    data = {
+        "product": product,
+        "categories": Category.objects.all(),
+        "StatusType": StatusType,
+    }
+    return render(request, "dashboard/admin/products/product-edit.html", data)

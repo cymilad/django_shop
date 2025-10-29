@@ -1,0 +1,195 @@
+{% extends 'dashboard/admin/base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}
+    داشبورد ادمین - ویرایش محصول
+{% endblock %}
+
+{% block breadcrumb %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb breadcrumb-light mb-0">
+            <li class="breadcrumb-item"> حساب</li>
+            <li class="breadcrumb-item"> داشبورد ادمین</li>
+            <li class="breadcrumb-item active" aria-current="page">
+                ویرایش محصول
+            </li>
+        </ol>
+    </nav>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div>
+            <div class="card mb-5">
+                <div class="card-header border-bottom d-flex justify-content-between align-items-center">
+                    <h5 class="card-header-title">ویرایش محصول</h5>
+                </div>
+
+                <form action="{% url 'dashboard:admin:products-edit' product.pk %}" method="POST"
+                      enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <div class="card-body">
+                        <div class="row d-flex ">
+                            <div class="col-md-6 mb-3">
+                                <label class="mb-2">نام محصول</label>
+                                <input type="text" class="form-control" name="title"
+                                       value="{{ product.title }}" id="id_title">
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label>اسلاگ محصول -
+                                    <button class="btn btn-primary badge" type="button" onclick="generateSlug()">
+                                        ساخت اسلاگ
+                                    </button>
+                                </label>
+                                <input type="text" class="form-control" name="slug"
+                                       value="{{ product.slug }}" id="id_slug">
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="mb-2">تعداد</label>
+                                <input type="number" class="form-control text-center" name="stock"
+                                       min="0" value="{{ product.stock }}">
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="mb-2">وضعیت</label>
+                                <select name="status" class="form-select text-center">
+                                    <option value="{{ StatusType.publish.value }}"
+                                            {% if product.status == StatusType.publish.value %}selected{% endif %}>
+                                        نمایش
+                                    </option>
+                                    <option value="{{ StatusType.draft.value }}"
+                                            {% if product.status == StatusType.draft.value %}selected{% endif %}>
+                                        عدم نمایش
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="mb-2">دسته‌بندی</label>
+                                <select name="category[]" class="form-control" multiple>
+                                    {% for cat in categories %}
+                                        <option value="{{ cat.id }}"
+                                                {% if cat in product.category.all %}selected{% endif %}>
+                                            {{ cat.title }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label class="mb-2">قیمت</label>
+                                <input type="text" class="form-control text-center" name="price"
+                                       value="{{ product.price }}"
+                                       placeholder="{{ product.price|intcomma:False }}">
+                            </div>
+
+                            <div class="col-md-2 mb-3">
+                                <label class="mb-2">درصد تخفیف</label>
+                                <input type="text" class="form-control text-center" name="discount_percent"
+                                       value="{{ product.discount_percent }}">
+                            </div>
+
+                            <div class="col-md-12 mb-3">
+                                <label class="mb-2">توضیحات کوتاه</label>
+                                <textarea style="text-align: justify;" rows="5" class="form-control"
+                                          name="brief_description">{{ product.brief_description }}</textarea>
+                            </div>
+
+                            <div class="col-md-12 mb-3">
+                                <label class="mb-2">توضیحات</label>
+                                <textarea style="text-align: justify;" class="form-control" rows="12"
+                                          name="description">{{ product.description }}</textarea>
+                            </div>
+
+                            <div class="col-md-12 mb-3">
+                                <label class="mb-2">تصویر محصول</label>
+                                <div>
+                                    <img src="{{ product.image.url }}" alt="{{ product.title }}" style="width: 15%;">
+                                </div>
+                            </div>
+
+                            <div class="col-md-12 mb-3">
+                                <label class="mb-2">ویرایش تصویر محصول</label>
+                                <input type="file" name="image" class="form-control mb-3">
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="card-footer">
+                        <div class=" d-flex justify-content-end">
+                            <a class="btn btn-secondary ms-3" href="{% url 'dashboard:admin:products' %}">
+                                بازگشت
+                            </a>
+                            <button type="submit" class="btn btn-danger ms-3">
+                                حذف
+                            </button>
+                            <a class="btn btn-warning ms-3" target="_blank"
+                               href="{% url 'shop:product_detail' product.slug %}">
+                                نمایش
+                            </a>
+                            <button type="submit" class="btn btn-primary ms-3">
+                                ذخیره تغییرات
+                            </button>
+                        </div>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+
+        <div>
+            <div class="card">
+                <div class="card-header border-bottom d-flex justify-content-between align-items-center">
+                    <h5 class="card-header-title">ویرایش تصاویر بیشتر</h5>
+                </div>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}
+
+{% block js %}
+
+    <script>
+        {% for message in messages %}
+            Swal.fire({
+                icon: '{% if message.tags == "error" %}error{% else %}success{% endif %}',
+                html: '<span style="font-size:20px; font-weight:bold;">{{ message|escapejs }}</span>',
+                showConfirmButton: true,
+                confirmButtonText: 'باشه'
+            }).then((result) => {
+                if (result.isConfirmed && '{{ message.tags }}' != 'error') {
+                    window.location.reload();
+                }
+            })
+        {% endfor %}
+    </script>
+
+    <script>
+        function generateSlug() {
+            const title = $("#id_title").val();
+            const slug = slugify(title);
+            $("#id_slug").val(slug)
+        }
+
+        function slugify(titleStr) {
+            titleStr = titleStr.replace(/^\s+|\s+$/g, '');
+            titleStr = titleStr.toLowerCase();
+            //persian support
+            titleStr = titleStr.replace(/[^a-z0-9_\s-ءاأإآؤئبتثجحخدذرزسشصضطظعغفقكلمنهويةى]#u/, '')
+                // Collapse whitespace and replace by -
+                .replace(/\s+/g, '-')
+                // Collapse dashes
+                .replace(/-+/g, '-');
+            slugStr = titleStr;
+            return slugStr;
+        }
+    </script>
+
+{% endblock %}
