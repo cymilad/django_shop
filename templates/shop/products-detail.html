@@ -20,8 +20,13 @@
                                 <!-- Slide -->
                                 <div class="swiper-slide">
                                     <div class="card card-bordered shadow-none">
-                                        <img class="card-img" src="{{ products.image.url }}"
-                                             alt="{{ products.title }}">
+                                        {% if products.image %}
+                                            <img class="card-img" src="{{ products.image.url }}"
+                                                 alt="{{ products.title }}">
+                                        {% else %}
+                                            <img class="card-img" src="{% static 'img/160x160/img1.jpg' %}"
+                                                 alt="{{ products.title }}">
+                                        {% endif %}
                                     </div>
                                 </div>
                                 <!-- End Slide -->
@@ -40,8 +45,13 @@
                                     <!-- Slide -->
                                     <div class="swiper-slide">
                                         <a class="avatar avatar-circle" href="javascript:;">
-                                            <img class="avatar-img" src="{{ products.image.url }}"
-                                                 alt="{{ products.title }}">
+                                            {% if products.image %}
+                                                <img class="avatar-img" src="{{ products.image.url }}"
+                                                     alt="{{ products.title }}">
+                                            {% else %}
+                                                <img class="card-img" src="{% static 'img/160x160/img1.jpg' %}"
+                                                     alt="{{ products.title }}">
+                                            {% endif %}
                                         </a>
                                     </div>
                                     <!-- End Slide -->

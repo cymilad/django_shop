@@ -3,10 +3,12 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.http import HttpResponseForbidden, JsonResponse
-from django.views.decorators.csrf import csrf_exempt
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.core.exceptions import FieldError
+from django.utils.text import slugify
+from django.db import IntegrityError
+from decimal import Decimal
 from accounts.models import Profile, UserType
 from shop.models import Product, Category, StatusType
 from functools import wraps
@@ -240,3 +242,83 @@ def products_delete(request, pk):
         product.delete()
         return JsonResponse({"success": True, "message": "محصول با موفقیت حذف شد"})
     return JsonResponse({"success": False, "message": "روش نامعتبر"})
+
+
+@admin_required
+def products_create(request):
+    if request.method == "POST":
+        title = request.POST.get("title", "").strip()
+        slug_input = request.POST.get("slug", "").strip()
+        description = request.POST.get("description", "").strip()
+        brief_description = request.POST.get("brief_description", "").strip()
+        status = request.POST.get("status")
+        category_ids = request.POST.getlist("category[]")
+        image = request.FILES.get("image")
+
+        slug = slugify(slug_input, allow_unicode=True)
+        if not slug:
+            messages.error(request, "لطفاً اسلاگ معتبر وارد کنید.")
+            data = {
+                "categories": Category.objects.all(),
+                "StatusType": StatusType
+            }
+            return render(request, "dashboard/admin/products/product-create.html", data)
+
+        try:
+            stock = int(request.POST.get("stock") or 0)
+        except ValueError:
+            stock = 0
+
+        try:
+            price = Decimal(request.POST.get("price") or 0)
+        except:
+            price = Decimal(0)
+
+        try:
+            discount_percent = int(request.POST.get("discount_percent") or 0)
+        except ValueError:
+            discount_percent = 0
+
+        if not title or not description or not brief_description or not status or not category_ids:
+            messages.error(request, "لطفاً همه فیلد ها را پر کنید.")
+            data = {
+                "categories": Category.objects.all(),
+                "StatusType": StatusType
+            }
+            return render(request, "dashboard/admin/products/product-create.html", data)
+
+        if Product.objects.filter(slug=slug).exists():
+            messages.error(request, "محصولی با این اسلاگ از قبل وجود دارد. لطفاً اسلاگ جدیدی وارد کنید.")
+            data = {
+                "categories": Category.objects.all(),
+                "StatusType": StatusType
+            }
+            return render(request, "dashboard/admin/products/product-create.html", data)
+
+        try:
+            product = Product.objects.create(
+                title=title,
+                slug=slug,
+                description=description,
+                brief_description=brief_description,
+                stock=stock,
+                status=status,
+                price=price,
+                discount_percent=discount_percent,
+                image=image,
+                user=request.user
+            )
+
+            product.category.set(category_ids)
+
+            messages.success(request, "ایجاد محصول با موفقیت انجام شد.")
+            return redirect("dashboard:admin:products-create")
+
+        except IntegrityError as e:
+            messages.error(request, f"خطا در ذخیره‌ سازی محصول: {e}")
+
+    data = {
+        "categories": Category.objects.all(),
+        "StatusType": StatusType
+    }
+    return render(request, "dashboard/admin/products/product-create.html", data)
