@@ -1,0 +1,87 @@
+{% extends 'dashboard/customer/base.html' %}
+{% load static %}
+
+{% block title %}
+	داشبورد - ایجاد نشانی
+{% endblock %}
+
+{% block breadcrumb %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb breadcrumb-light mb-0">
+            <li class="breadcrumb-item">حساب</li>
+            <li class="breadcrumb-item"> داشبورد</li>
+            <li class="breadcrumb-item active" aria-current="page">
+                ایجاد نشانی
+            </li>
+        </ol>
+    </nav>
+{% endblock %}
+
+
+{% block content %}
+    <!-- Card -->
+    <div class="card mb-3">
+        <div class="card-header border-bottom">
+            <h4 class="card-header-title">ایجاد نشانی جدید</h4>
+        </div>
+
+        <form action="{% url 'dashboard:customer:address-create' %}" method="post">
+            {% csrf_token %}
+
+            <div class="card-body">
+                <div class="row">
+
+                    <div class="col-md-4  mb-4">
+                        <label class="col-form-label form-label">استان</label>
+                        <input type="text" name="state" class="form-control" placeholder="استان خود را وارد کنید">
+                    </div>
+
+
+                    <div class="col-md-4  mb-4">
+                        <label class=" col-form-label form-label">شهر</label>
+                        <input type="text" name="city" class="form-control" placeholder="شهر خود را وارد کنید">
+                    </div>
+
+
+                    <div class="col-md-4  mb-4">
+                        <label class=" col-form-label form-label">کد پستی</label>
+                        <input type="text" name="zip_code" class="form-control" placeholder="کد پستی خود را وارد کنید">
+                    </div>
+
+                </div>
+
+                <div class="row mb-4">
+                    <label class="col-form-label form-label">آدرس</label>
+                    <input type="text" name="address" class="form-control" placeholder="آدرس خود را وارد کنید">
+                </div>
+
+            </div>
+
+            <div class="card-footer pt-0">
+                <div class="d-flex justify-content-end gap-3">
+                    <a class="btn btn-secondary" href="{% url 'dashboard:customer:address-list' %}">بازگشت</a>
+                    <button class="btn btn-primary" type="submit">ذخیره آدرس</button>
+                </div>
+            </div>
+        </form>
+
+    </div>
+{% endblock %}
+
+{% block js %}
+
+    {% if messages %}
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                {% for message in messages %}
+                    Swal.fire({
+                        icon: "{% if message.tags == 'success' %}success{% elif message.tags == 'error' %}error{% else %}info{% endif %}",
+                        html: "<span style='font-size:20px;'><b>{{ message }}</b></span>",
+                        confirmButtonText: "باشه",
+                    })
+                {% endfor %}
+            })
+        </script>
+    {% endif %}
+
+{% endblock %}

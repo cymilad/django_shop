@@ -1,11 +1,13 @@
+from django.core.exceptions import FieldError
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, JsonResponse
 from django.contrib import messages
 from functools import wraps
 from accounts.models import Profile, UserType
+from order.models import UserAddress
 import os
 
 
@@ -128,3 +130,86 @@ def profile_edit_image(request):
         messages.error(request, "ارسال تصویر با مشکل مواجه شده لطفاً مجدد بررسی و تلاش نمایید")
 
     return redirect("dashboard:customer:profile-edit")
+
+
+@customer_required
+def address_list(request):
+    user_address = UserAddress.objects.filter(user=request.user)
+    order_by = request.GET.get("order_by")
+    if order_by:
+        try:
+            user_address = user_address.order_by(order_by)
+        except FieldError:
+            pass
+
+    data = {
+        "user_address": user_address,
+    }
+    return render(request, "dashboard/customer/address/address-list.html", data)
+
+
+@customer_required
+def address_create(request):
+    if request.method == "POST":
+        address = request.POST.get("address")
+        state = request.POST.get("state")
+        city = request.POST.get("city")
+        zip_code = request.POST.get("zip_code")
+
+        if not (state and city and address and zip_code):
+            messages.error(request, "لطفاً همه فیلد های ضروری را پر کنید.")
+            return redirect(request.path)
+
+        UserAddress.objects.create(
+            user=request.user,
+            address=address,
+            state=state,
+            city=city,
+            zip_code=zip_code,
+        )
+
+        messages.success(request, "آدرس با موفقیت ایجاد شد")
+        return redirect("dashboard:customer:address-create")
+
+    return render(request, "dashboard/customer/address/address-create.html")
+
+
+@customer_required
+def address_edit(request, pk):
+    address_item = get_object_or_404(UserAddress, pk=pk, user=request.user)
+
+    if request.method == "POST":
+        address = request.POST.get("address")
+        state = request.POST.get("state")
+        city = request.POST.get("city")
+        zip_code = request.POST.get("zip_code")
+
+        if not (state and city and address and zip_code):
+            messages.error(request, "لطفاً همه فیلد های ضروری را پر کنید.")
+            return redirect(request.path)
+
+        address_item.address = address
+        address_item.state = state
+        address_item.city = city
+        address_item.zip_code = zip_code
+        address_item.save()
+
+        messages.success(request, "ویرایش آدرس با موفقیت انجام شد")
+        return redirect("dashboard:customer:address-edit", pk=address_item.pk)
+
+    data = {
+        "address_item": address_item,
+    }
+    return render(request, "dashboard/customer/address/address-edit.html", data)
+
+
+@customer_required
+def address_delete(request, pk):
+    if request.method == "POST":
+        address_item = get_object_or_404(UserAddress, pk=pk, user=request.user)
+        address_item.delete()
+        return JsonResponse({
+            "success": True,
+            "message": "آدرس با موفقیت حذف شد."
+        })
+    return JsonResponse({"success": False, "message": "روش نامعتبر"})

@@ -1,7 +1,6 @@
 from django.views.decorators.http import require_POST
 from django.shortcuts import render
 from django.http import JsonResponse
-from shop.models import *
 from .cart import *
 
 
@@ -28,8 +27,8 @@ def AddProduct(request):
     if product_id and Product.objects.filter(id=product_id, status=StatusType.publish).exists():
         cart.add_product(product_id)
 
-    # if request.user.is_authenticated:
-    #     cart.merge_session_cart_in_db(request.user)
+    if request.user.is_authenticated:
+        cart.merge_session_cart_in_db(request.user)
 
     return JsonResponse({
         'cart': cart.get_cart_dict(),
@@ -46,8 +45,8 @@ def UpdateProduct(request):
     if product_id and quantity:
         cart.update_product_quantity(product_id, quantity)
 
-    # if request.user.is_authenticated:
-    #     cart.merge_session_cart_in_db(request.user)
+    if request.user.is_authenticated:
+        cart.merge_session_cart_in_db(request.user)
 
     return JsonResponse({
         "cart": cart.get_cart_dict(),
@@ -63,8 +62,8 @@ def RemoveProduct(request):
     if product_id:
         cart.remove_product(product_id)
 
-    # if request.user.is_authenticated:
-    #     cart.merge_session_cart_in_db(request.user)
+    if request.user.is_authenticated:
+        cart.merge_session_cart_in_db(request.user)
 
     return JsonResponse({
         "cart": cart.get_cart_dict(),

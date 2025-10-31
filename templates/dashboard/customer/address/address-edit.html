@@ -1,0 +1,143 @@
+{% extends 'dashboard/customer/base.html' %}
+{% load static %}
+
+{% block title %}
+    داشبورد - ویرایش آدرس
+{% endblock %}
+
+{% block breadcrumb %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb breadcrumb-light mb-0">
+            <li class="breadcrumb-item">حساب</li>
+            <li class="breadcrumb-item"> داشبورد</li>
+            <li class="breadcrumb-item active" aria-current="page">
+                ویرایش نشانی
+            </li>
+        </ol>
+    </nav>
+{% endblock %}
+
+{% block content %}
+
+    <div class="card mb-3">
+        <div class="card-header border-bottom">
+            <h4 class="card-header-title">ویرایش نشانی </h4>
+        </div>
+
+        <form action="{% url 'dashboard:customer:address-edit' address_item.pk %}" method="post">
+            {% csrf_token %}
+
+            <div class="card-body">
+
+                <div class="row">
+                    <div class="col-md-4  mb-4">
+                        <label class="col-form-label form-label">استان</label>
+                        <input type="text" name="state" value="{{ address_item.state }}" class="form-control"
+                               placeholder="استان خود را وارد کنید">
+                    </div>
+
+
+                    <div class="col-md-4  mb-4">
+                        <label class=" col-form-label form-label">شهر</label>
+                        <input type="text" name="city" value="{{ address_item.city }}" class="form-control"
+                               placeholder="شهر خود را وارد کنید">
+                    </div>
+
+
+                    <div class="col-md-4  mb-4">
+                        <label class=" col-form-label form-label">کد پستی</label>
+                        <input type="text" name="zip_code" value="{{ address_item.zip_code }}" class="form-control"
+                               placeholder="کد پستی خود را وارد کنید">
+                    </div>
+
+                </div>
+
+                <div class="row mb-4">
+                    <label class="col-form-label form-label">آدرس</label>
+                    <input type="text" name="address" value="{{ address_item.address }}" class="form-control"
+                           placeholder="آدرس خود را وارد کنید">
+                </div>
+
+            </div>
+
+            <div class="card-footer pt-0">
+                <div class="d-flex justify-content-end gap-3">
+
+                    <input type="hidden" id="csrf_token" value="{{ csrf_token }}">
+                    <button type="button" class="btn btn-danger ms-3"
+                            data-url="{% url 'dashboard:customer:address-delete' address_item.pk %}"
+                            onclick="confirmDelete(this, '{{ address_item.title|escapejs }}')">
+                        حذف
+                    </button>
+
+                    <a class="btn btn-secondary" href="{% url 'dashboard:customer:address-list' %}">
+                        بازگشت
+                    </a>
+                    <button class="btn btn-primary" type="submit">ذخیره تغییرات</button>
+                </div>
+            </div>
+        </form>
+
+    </div>
+
+{% endblock %}
+
+{% block js %}
+
+    <script>
+        {% for message in messages %}
+            Swal.fire({
+                icon: '{% if message.tags == "error" %}error{% else %}success{% endif %}',
+                html: '<span style="font-size:20px; font-weight:bold;">{{ message|escapejs }}</span>',
+                showConfirmButton: true,
+                confirmButtonText: 'باشه'
+            }).then((result) => {
+                if (result.isConfirmed && '{{ message.tags }}' != 'error') {
+                    window.location.reload();
+                }
+            })
+        {% endfor %}
+    </script>
+
+    <script>
+        // Delete address
+        function confirmDelete(btn, title) {
+            Swal.fire({
+                title: 'تایید حذف',
+                html: `آیا مطمئن هستید می ‌خواهید نشانی <strong>${title}</strong> را حذف کنید؟`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'بله، حذف کن',
+                cancelButtonText: 'خیر',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const url = btn.dataset.url;
+                    const csrfToken = document.getElementById('csrf_token').value;
+
+                    fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrfToken,
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                        },
+                    }).then(res => res.json()).then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                html: `<span style="font-size:20px; font-weight:bold;">${data.message}</span>`,
+                                confirmButtonText: 'باشه'
+                            }).then(() => {
+                                // بعد از حذف می ‌توانید صفحه محصولات را ریدایرکت کنید
+                                window.location.href = '{% url 'dashboard:customer:address-list' %}';
+                            });
+                        } else {
+                            Swal.fire('خطا', data.message, 'error');
+                        }
+                    });
+                }
+            });
+        }
+    </script>
+
+{% endblock %}
