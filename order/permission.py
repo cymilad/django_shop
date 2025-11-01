@@ -10,5 +10,4 @@ def customer_required(view_func):
         if request.user.type != UserType.customer.value:
             return HttpResponseForbidden("شما دسترسی مشتری ندارید")
         return view_func(request, *args, **kwargs)
-
     return _wrapped_view
