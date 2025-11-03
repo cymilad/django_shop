@@ -2,9 +2,11 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
 from django.utils import timezone
 from cart.cart import CartSession
+from payment.models import Payment
 from .permission import customer_required
 from .models import *
 from cart.models import Cart
+from payment.zibal_client import ZibalAPI
 
 
 @customer_required
@@ -79,7 +81,24 @@ def checkout(request):
         order.total_price = total_price
         order.save()
 
-        return redirect("order:completed")
+        # اتصال به درگاه بانکی و پرداخت
+        zibal = ZibalAPI()
+        response = zibal.payment_request(total_price)
+        if response.get("result") == 100:
+            track_id = response.get("trackId")
+            payment = Payment.objects.create(
+                authority_id=track_id,
+                amount=total_price,
+                status=1
+            )
+            order.payment = payment
+            order.save()
+
+            return redirect(zibal.generate_payment_url(track_id))
+        else:
+            return JsonResponse({
+                "error": "خطا در ارتباط با درگاه پرداخت زیبال",
+            }, status=500)
 
     cart = get_object_or_404(Cart, user=request.user)
     address = UserAddress.objects.filter(user=request.user)
@@ -92,6 +111,7 @@ def checkout(request):
         "total_tax": total_tax,
     }
     return render(request, 'order/checkout.html', data)
+
 
 @customer_required
 def validatecoupon(request):

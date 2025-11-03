@@ -1,4 +1,5 @@
 from pathlib import Path
+from django.conf import settings
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -30,6 +31,7 @@ INSTALLED_APPS = [
     'shop',
     'cart',
     'order',
+    'payment',
 ]
 
 MIDDLEWARE = [
@@ -142,3 +144,9 @@ SITE_URL = 'http://localhost:8000'
 
 # Custom UserModel
 AUTH_USER_MODEL = 'accounts.User'
+
+# Payment geteway settings
+# for sandbox input merchent_id => zibal
+ZIBAL_MERCHANT_ID = "zibal"  # مقدار پیش‌ فرض برای تست (در حالت واقعی merchant id خودت رو بزار)
+ZIBAL_CALLBACK_URL = "http://127.0.0.1:8000/payment/verify"
+ZIBAL_SANDBOX = True  # اگر محیط تست می‌خوای
