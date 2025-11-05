@@ -11,6 +11,7 @@ from django.db import IntegrityError
 from decimal import Decimal
 from accounts.models import Profile, UserType
 from shop.models import Product, Category, StatusType
+from order.models import Order, OrderStatusType
 from functools import wraps
 import os
 
@@ -322,3 +323,58 @@ def products_create(request):
         "StatusType": StatusType
     }
     return render(request, "dashboard/admin/products/product-create.html", data)
+
+
+@admin_required
+def order_list(request):
+    queryset = Order.objects.all()
+
+    search_q = request.GET.get("q")
+    if search_q:
+        queryset = queryset.filter(id__icontains=search_q)
+
+    status = request.GET.get("status")
+    if status:
+        queryset = queryset.filter(status=status)
+
+    order_by = request.GET.get("order_by")
+    if order_by:
+        try:
+            queryset = queryset.order_by(order_by)
+        except FieldError:
+            pass
+
+    paginate_by = int(request.GET.get("page_size", 5))
+    pageinator = Paginator(queryset, paginate_by)
+    page_number = request.GET.get("page")
+    page_obj = pageinator.get_page(page_number)
+
+    data = {
+        "items": page_obj,
+        "page_obj": page_obj,
+        "total_items": queryset.count(),
+        "status_types": OrderStatusType.choices,
+    }
+    return render(request, "dashboard/admin/order/order-list.html", data)
+
+@admin_required
+def order_detail(request, pk):
+    order = get_object_or_404(Order, pk=pk)
+    profile = Profile.objects.all()
+
+    data = {
+        "item": order,
+        "profile": profile,
+    }
+    return render(request, "dashboard/admin/order/order-detail.html", data)
+
+@admin_required
+def order_invoice(request, pk):
+    order = get_object_or_404(Order, pk=pk, status=OrderStatusType.success.value)
+    profile = Profile.objects.all()
+
+    data = {
+        "item": order,
+        "profile": profile,
+    }
+    return render(request, 'dashboard/admin/order/order-invoice.html', data)

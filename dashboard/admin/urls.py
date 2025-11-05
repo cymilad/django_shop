@@ -12,4 +12,7 @@ urlpatterns = [
     path('products/create/', products_create, name='products-create'),
     path('products/edit/<int:pk>', products_edit, name='products-edit'),
     path('products/delete/<int:pk>', products_delete, name='products-delete'),
+    path('order/list/', order_list, name='order-list'),
+    path('order/detail/<int:pk>', order_detail, name='order-detail'),
+    path('order/invoice/<int:pk>', order_invoice, name='order-invoice'),
 ]

@@ -56,7 +56,10 @@ class Order(models.Model):
         return sum(item.price * item.quantity for item in self.order_items.all())
 
     def get_full_address(self):
-        return f"{self.address},{self.city},{self.address}"
+        return f"{self.address}"
+
+    def get_full_address_invoice(self):
+        return f"{self.state} - {self.city} - {self.address}"
 
     def get_status(self):
         return {

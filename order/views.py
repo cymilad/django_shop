@@ -71,8 +71,8 @@ def checkout(request):
                 return JsonResponse({"error": "شما قبلاً از این کد استفاده کرده‌اید"}, status=400)
 
             # اعمال تخفیف
-            discount_percent = coupon.discount_percent
-            total_price = round(total_price - (total_price * (discount_percent / Decimal(100))))
+            # discount_percent = coupon.discount_percent
+            # total_price = round(total_price - (total_price * (discount_percent / Decimal(100))))
             order.coupon = coupon
             coupon.used_by.add(user)
             coupon.save()
@@ -83,12 +83,12 @@ def checkout(request):
 
         # اتصال به درگاه بانکی و پرداخت
         zibal = ZibalAPI()
-        response = zibal.payment_request(total_price)
+        response = zibal.payment_request(order.get_price())
         if response.get("result") == 100:
             track_id = response.get("trackId")
             payment = Payment.objects.create(
                 authority_id=track_id,
-                amount=total_price,
+                amount=order.get_price(),
                 status=1
             )
             order.payment = payment

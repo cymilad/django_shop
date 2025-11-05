@@ -14,4 +14,8 @@ urlpatterns = [
     path('address/list/', address_list, name='address-list'),
     path('address/edit/<int:pk>', address_edit, name='address-edit'),
     path('address/delete/<int:pk>', address_delete, name='address-delete'),
+
+    path('order/list/', order_list, name='order-list'),
+    path('order/detail/<int:pk>', order_detail, name='order-detail'),
+    path('order/invoice/<int:pk>', order_invoice, name='order-invoice'),
 ]

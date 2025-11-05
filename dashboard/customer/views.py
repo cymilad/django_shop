@@ -1,13 +1,16 @@
+from pydoc import pager
+
 from django.core.exceptions import FieldError
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.http import HttpResponseForbidden, JsonResponse
+from django.core.paginator import Paginator
 from django.contrib import messages
 from functools import wraps
 from accounts.models import Profile, UserType
-from order.models import UserAddress
+from order.models import UserAddress, Order, OrderStatusType, OrderItem
 import os
 
 
@@ -213,3 +216,60 @@ def address_delete(request, pk):
             "message": "آدرس با موفقیت حذف شد."
         })
     return JsonResponse({"success": False, "message": "روش نامعتبر"})
+
+
+@customer_required
+def order_list(request):
+    queryset = Order.objects.filter(user=request.user)
+
+    search_q = request.GET.get("q")
+    if search_q:
+        queryset = queryset.filter(id__icontains=search_q)
+
+    status = request.GET.get("status")
+    if status:
+        queryset = queryset.filter(status=status)
+
+    order_by = request.GET.get("order_by")
+    if order_by:
+        try:
+            queryset = queryset.order_by(order_by)
+        except FieldError:
+            pass
+
+    paginate_by = int(request.GET.get("page_size", 5))
+    pageinator = Paginator(queryset, paginate_by)
+    page_number = request.GET.get("page")
+    page_obj = pageinator.get_page(page_number)
+
+    data = {
+        "items": page_obj,
+        "page_obj": page_obj,
+        "total_items": queryset.count(),
+        "status_types": OrderStatusType.choices,
+    }
+    return render(request, "dashboard/customer/order/order-list.html", data)
+
+
+@customer_required
+def order_detail(request, pk):
+    order = get_object_or_404(Order, pk=pk, user=request.user)
+    profile = Profile.objects.get(user=request.user)
+
+    data = {
+        "item": order,
+        "profile": profile,
+    }
+    return render(request, "dashboard/customer/order/order-detail.html", data)
+
+
+@customer_required
+def order_invoice(request, pk):
+    order = get_object_or_404(Order, pk=pk, user=request.user, status=OrderStatusType.success.value)
+    profile = Profile.objects.get(user=request.user)
+
+    data = {
+        "item": order,
+        "profile": profile,
+    }
+    return render(request, 'dashboard/customer/order/order-invoice.html', data)
