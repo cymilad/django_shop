@@ -170,8 +170,7 @@
                                 <li class="page-item {% if not page_obj.has_previous %}disabled{% endif %}">
                                     {% if page_obj.has_previous %}
                                         <a class="page-link"
-                                           href="?page=
-                                                   {{ page_obj.previous_page_number }}{% if query_string %}&{{ query_string }}{% endif %}">
+                                           href="?page={{ page_obj.previous_page_number }}{% if query_string %}&{{ query_string }}{% endif %}">
                                             قبلی
                                         </a>
                                     {% else %}
@@ -188,16 +187,14 @@
                                     {% elif page == 1 or page == page_obj.paginator.num_pages %}
                                         <li class="page-item">
                                             <a class="page-link"
-                                               href="?page=
-                                                       {{ page }}{% if query_string %}&{{ query_string }}{% endif %}">
+                                               href="?page={{ page }}{% if query_string %}&{{ query_string }}{% endif %}">
                                                 {{ page }}
                                             </a>
                                         </li>
                                     {% elif page > page_obj.number|add:'-3' and page < page_obj.number|add:'3' %}
                                         <li class="page-item">
                                             <a class="page-link"
-                                               href="?page=
-                                                       {{ page }}{% if query_string %}&{{ query_string }}{% endif %}">
+                                               href="?page={{ page }}{% if query_string %}&{{ query_string }}{% endif %}">
                                                 {{ page }}
                                             </a>
                                         </li>
@@ -212,8 +209,7 @@
                                 <li class="page-item {% if not page_obj.has_next %}disabled{% endif %}">
                                     {% if page_obj.has_next %}
                                         <a class="page-link"
-                                           href="?page=
-                                                   {{ page_obj.next_page_number }}{% if query_string %}&{{ query_string }}{% endif %}">
+                                           href="?page={{ page_obj.next_page_number }}{% if query_string %}&{{ query_string }}{% endif %}">
                                             بعدی
                                         </a>
                                     {% else %}
@@ -235,6 +231,8 @@
 {% endblock %}
 
 {% block js %}
+
+    <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
 
     <script>
         $(document).ready(function () {

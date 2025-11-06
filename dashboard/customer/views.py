@@ -224,7 +224,7 @@ def order_list(request):
 
     search_q = request.GET.get("q")
     if search_q:
-        queryset = queryset.filter(id__icontains=search_q)
+        queryset = queryset.filter(order_items__product__title__icontains=search_q)
 
     status = request.GET.get("status")
     if status:
