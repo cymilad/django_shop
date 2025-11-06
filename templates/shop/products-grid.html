@@ -189,7 +189,15 @@
                             <!-- Card -->
                             <div class="card card-bordered shadow-none text-center h-100">
                                 <div class="card-pinned">
-                                    <img class="card-img-top" src="{{ product.image.url }}" alt="{{ product.title }}">
+                                    {% if product.image %}
+                                        <img class="card-img-top"
+                                             src="{{ product.image.url }}"
+                                             alt="{{ product.title }}">
+                                    {% else %}
+                                        <img class="card-img-top"
+                                             src="{% static 'img/160x160/img1.jpg' %}"
+                                             alt="no picture">
+                                    {% endif %}
 
                                     <div class="card-pinned-top-end">
                                         {% if request.user.is_authenticated %}
@@ -277,6 +285,9 @@
                             {% if page_obj.has_previous %}
                                 <a class="page-link"
                                    href="?page=
+
+
+
                                            {{ page_obj.previous_page_number }}{% if query_string %}&{{ query_string }}{% endif %}"
                                    aria-label="Previous">
                                     <span aria-hidden="true"><i class="bi-chevron-double-right small"></i></span>
@@ -318,6 +329,9 @@
                             {% if page_obj.has_next %}
                                 <a class="page-link"
                                    href="?page=
+
+
+
                                            {{ page_obj.next_page_number }}{% if query_string %}&{{ query_string }}{% endif %}"
                                    aria-label="Next">
                                     <span aria-hidden="true"><i class="bi-chevron-double-left small"></i></span>

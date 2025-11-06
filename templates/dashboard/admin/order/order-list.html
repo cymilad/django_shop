@@ -128,8 +128,9 @@
                                             {% endif %}
                                         </td>
                                     </tr>
+                                {% empty %}
+                                    <p>هیچ سفارشی تا اکنون ثبت شده است.</p>
                                 {% endfor %}
-
 
                                 </tbody>
                             </table>
@@ -147,6 +148,7 @@
                                         {% if page_obj.has_previous %}
                                             <a class="page-link"
                                                href="?page=
+
 
 
 
@@ -193,6 +195,7 @@
                                         {% if page_obj.has_next %}
                                             <a class="page-link"
                                                href="?page=
+
 
 
 

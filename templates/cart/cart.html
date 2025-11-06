@@ -122,7 +122,8 @@
 
                                                     <div class="col-auto">
                                                         <div class="d-grid gap-2 d-flex justify-content-between">
-                                                            <button type="button" class=" btn btn-sm btn-icon text-danger border-0 mx-1"
+                                                            <button type="button"
+                                                                    class=" btn btn-sm btn-icon text-danger border-0 mx-1"
                                                                     onclick="removeProduct('{{ item.product_id }}')">
                                                                 <i class="bi-trash me-1 text-danger"></i> حذف
                                                             </button>
@@ -150,6 +151,8 @@
                                 </div>
                             </li>
                             <!-- End Item -->
+                        {% empty %}
+                            <p>سبد خرید شما خالی است.</p>
                         {% endfor %}
                     </ul>
                     <!-- End List Group -->

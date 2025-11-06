@@ -1,5 +1,6 @@
 from pydoc import pager
 
+from django.core import paginator
 from django.core.exceptions import FieldError
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import update_session_auth_hash
@@ -12,6 +13,8 @@ from functools import wraps
 from accounts.models import Profile, UserType
 from order.models import UserAddress, Order, OrderStatusType, OrderItem
 import os
+
+from shop.models import Wishlist
 
 
 def customer_required(view_func):
@@ -273,3 +276,45 @@ def order_invoice(request, pk):
         "profile": profile,
     }
     return render(request, 'dashboard/customer/order/order-invoice.html', data)
+
+
+@customer_required
+def wishlist_list(request):
+    queryset = Wishlist.objects.filter(user=request.user)
+
+    search_q = request.GET.get("q")
+    if search_q:
+        queryset = queryset.filter(product__title__icontains=search_q)
+
+    order_by = request.GET.get("order_by")
+    if order_by:
+        try:
+            queryset = queryset.order_by(order_by)
+        except FieldError:
+            pass
+
+    page_size = request.GET.get("page_size", 5)
+    pageinator = Paginator(queryset, page_size)
+    page_number = request.GET.get("page")
+    page_obj = pageinator.get_page(page_number)
+
+
+    data = {
+        "object_list": page_obj,
+        "page_obj": page_obj,
+        "paginator": paginator,
+        "is_paginated": page_obj.has_other_pages(),
+        "total_items": queryset.count(),
+    }
+    return render(request, "dashboard/customer/wishlist/wishlist-list.html", data)
+
+@customer_required
+def wishlist_delete(request, pk):
+    if request.method == "POST":
+        wishlist_item = get_object_or_404(Wishlist, pk=pk, user=request.user)
+        wishlist_item.delete()
+        return JsonResponse({
+            "success": True,
+            "message": "این محصول با موفقیت از لیست علایق حذف شد."
+        })
+    return JsonResponse({"success": False, "message": "روش نامعتبر"})

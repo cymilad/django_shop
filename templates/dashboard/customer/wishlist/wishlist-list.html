@@ -1,0 +1,207 @@
+{% extends 'dashboard/customer/base.html' %}
+{% load static %}
+
+
+{% block title %}
+    داشبورد - ویرایش پروفایل
+{% endblock %}
+
+
+{% block breadcrumb %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb breadcrumb-light mb-0">
+            <li class="breadcrumb-item"> حساب</li>
+            <li class="breadcrumb-item"> داشبورد کاربر</li>
+            <li class="breadcrumb-item active" aria-current="page">
+                لیست علایق
+            </li>
+        </ol>
+    </nav>
+{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <div class="card-header d-sm-flex justify-content-sm-between align-items-sm-center border-bottom">
+            <h5 class="card-header-title">لیست علاقه مندی ها</h5>
+            <span>{{ total_items }} مورد</span>
+        </div>
+
+        <div class="card-body">
+            <ul class="list-group list-group-flush list-group-no-gutters">
+                {% for item in object_list %}
+                    <li class="list-group-item wishlist-item">
+                        <div class="d-flex align-items-start">
+                            <!-- تصویر محصول -->
+                            <div class="flex-shrink-0 ms-2">
+                                {% if item.product.image %}
+                                    <img class="avatar avatar-xl avatar-4x3"
+                                         alt="{{ item.product.title }}"
+                                         src="{{ item.product.image.url }}">
+                                {% else %}
+                                    <img class="avatar avatar-xl avatar-4x3"
+                                         alt="no picture"
+                                         src="{% static 'img/160x160/img1.jpg' %}">
+                                {% endif %}
+                            </div>
+
+                            <!-- جزئیات محصول -->
+                            <div class="flex-grow-1 ms-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <!-- عنوان محصول -->
+                                    <h5 class="mb-0">
+                                        <a class="text-dark me-2"
+                                           href="{% url 'shop:product_detail' item.product.slug %}">
+                                            {{ item.product.title }}
+                                        </a>
+                                    </h5>
+
+                                    <!-- دکمه حذف -->
+                                    <input type="hidden" id="csrf_token" value="{{ csrf_token }}">
+                                    <button type="button"
+                                            class="btn btn-link link-danger text-decoration-none p-0 small"
+                                            data-url="{% url 'dashboard:customer:wishlist-delete' item.pk %}"
+                                            onclick="confirmDelete(this, '{{ item.product.title|escapejs }}')">
+                                        <i class="bi-trash me-1"></i> حذف
+                                    </button>
+                                </div>
+
+                                <!-- دسته‌بندی -->
+                                <div class="mt-2 text-body small">
+                                    <span class="text-muted me-2">دسته بندی:</span>
+                                    <span class="fw-semibold">
+                                        {% for category in item.product.category.all %}
+                                            <a class="link-sm link-secondary" href="#">
+                                                {{ category.title }}
+                                            </a>
+                                            {% if not forloop.last %}, {% endif %}
+                                        {% endfor %}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+
+                {% empty %}
+                    <p>شما هیچ محصولی رو به لیست علاقه مندی خود اضافه نکردید.</p>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Pagination -->
+        <div class="row pt-5 mt-3">
+            <nav aria-label="Page navigation" class="py-3">
+                <ul class="pagination justify-content-center">
+
+                    <!-- قبلی -->
+                    <li class="page-item {% if not page_obj.has_previous %}disabled{% endif %}">
+                        {% if page_obj.has_previous %}
+                            <a class="page-link"
+                               href="?page=
+
+
+
+                                       {{ page_obj.previous_page_number }}{% if query_string %}&{{ query_string }}{% endif %}">
+                                قبلی
+                            </a>
+                        {% else %}
+                            <a class="page-link" href="#" tabindex="-1">قبلی</a>
+                        {% endif %}
+                    </li>
+
+                    <!-- شماره صفحات -->
+                    {% for page in page_obj.paginator.page_range %}
+                        {% if page == page_obj.number %}
+                            <li class="page-item active">
+                                <a class="page-link" href="#">{{ page }}</a>
+                            </li>
+                        {% elif page == 1 or page == page_obj.paginator.num_pages %}
+                            <li class="page-item">
+                                <a class="page-link"
+                                   href="?page={{ page }}{% if query_string %}&{{ query_string }}{% endif %}">
+                                    {{ page }}
+                                </a>
+                            </li>
+                        {% elif page > page_obj.number|add:'-3' and page < page_obj.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link"
+                                   href="?page={{ page }}{% if query_string %}&{{ query_string }}{% endif %}">
+                                    {{ page }}
+                                </a>
+                            </li>
+                        {% elif page == page_obj.number|add:'-3' or page == page_obj.number|add:'3' %}
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#">...</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    <!-- بعدی -->
+                    <li class="page-item {% if not page_obj.has_next %}disabled{% endif %}">
+                        {% if page_obj.has_next %}
+                            <a class="page-link"
+                               href="?page=
+
+
+
+                                       {{ page_obj.next_page_number }}{% if query_string %}&{{ query_string }}{% endif %}">
+                                بعدی
+                            </a>
+                        {% else %}
+                            <a class="page-link" href="#">بعدی</a>
+                        {% endif %}
+                    </li>
+
+                </ul>
+            </nav>
+        </div>
+        <!-- End Pagination -->
+
+        <a class="card-footer card-link text-center border-top" href="{% url 'shop:index' %}">
+            به خرید ادامه دهید
+        </a>
+    </div>
+{% endblock %}
+
+
+{% block js %}
+    <script>
+        // Delete address
+        function confirmDelete(btn, title) {
+            Swal.fire({
+                title: 'تایید حذف',
+                html: `آیا مطمئن هستید می ‌خواهید <strong>${title}</strong> از لیست علایق حذف کنید؟`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'بله، حذف کن',
+                cancelButtonText: 'خیر',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const url = btn.dataset.url;
+                    const csrfToken = document.getElementById('csrf_token').value;
+
+                    fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrfToken,
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                        },
+                    }).then(res => res.json()).then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                html: `<span style="font-size:20px; font-weight:bold;">${data.message}</span>`,
+                                confirmButtonText: 'باشه'
+                            }).then(() => {
+                                // بعد از حذف می ‌توانید صفحه محصولات را ریدایرکت کنید
+                                window.location.href = '{% url 'dashboard:customer:wishlist-list' %}';
+                            });
+                        } else {
+                            Swal.fire('خطا', data.message, 'error');
+                        }
+                    });
+                }
+            });
+        }
+    </script>
+{% endblock %}

@@ -18,4 +18,7 @@ urlpatterns = [
     path('order/list/', order_list, name='order-list'),
     path('order/detail/<int:pk>', order_detail, name='order-detail'),
     path('order/invoice/<int:pk>', order_invoice, name='order-invoice'),
+
+    path('wishlist/list/', wishlist_list, name='wishlist-list'),
+    path('wishlist/delete/<int:pk>', wishlist_delete, name='wishlist-delete'),
 ]
