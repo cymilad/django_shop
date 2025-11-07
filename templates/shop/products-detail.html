@@ -65,16 +65,29 @@
             <!-- End Col -->
 
             <div class="col-md-5">
-                <!-- Rating -->
-                <a class="d-flex gap-1 mb-4" href="#reviewSection">
-                    <img src="{% static 'svg/illustrations/star.svg' %}" alt="Review rating" width="16">
-                    <img src="{% static 'svg/illustrations/star.svg' %}" alt="Review rating" width="16">
-                    <img src="{% static 'svg/illustrations/star.svg' %}" alt="Review rating" width="16">
-                    <img src="{% static 'svg/illustrations/star.svg' %}" alt="Review rating" width="16">
-                    <img src="{% static 'svg/illustrations/star.svg' %}" alt="Review rating" width="16">
-                    <span class="ms-1">287 نظر</span>
-                </a>
-                <!-- End Rating -->
+                <div class="d-flex justify-content-between">
+                    <!-- Rating -->
+                    <a class="d-flex gap-1 mb-4" href="#reviewSection">
+                        <img src="{% static 'svg/illustrations/star.svg' %}" alt="Review rating" width="16">
+                        <img src="{% static 'svg/illustrations/star.svg' %}" alt="Review rating" width="16">
+                        <img src="{% static 'svg/illustrations/star.svg' %}" alt="Review rating" width="16">
+                        <img src="{% static 'svg/illustrations/star.svg' %}" alt="Review rating" width="16">
+                        <img src="{% static 'svg/illustrations/star.svg' %}" alt="Review rating" width="16">
+                        <span class="ms-1">287 نظر</span>
+                    </a>
+                    <!-- End Rating -->
+                    {% if request.user.is_authenticated %}
+                        <button type="button"
+                                class="btn btn-outline-secondary btn-xs btn-icon rounded-circle
+                                {% if is_wished %} active {% endif %}"
+                                data-bs-toggle="tooltip"
+                                data-bs-placement="top"
+                                title="افزودن به علایق"
+                                onclick="addToWishlist(this,`{{ products.id }}`)">
+                            <i class="bi-heart"></i>
+                        </button>
+                    {% endif %}
+                </div>
 
                 <!-- Heading -->
                 <div class="mb-5">
@@ -221,7 +234,10 @@
                 <!-- End Accordion -->
 
                 <div class="d-grid mb-4">
-                    <button type="button" class="btn btn-primary btntransition">افزودن به سبد خرید</button>
+                    <button type="button" class="btn btn-primary btntransition"
+                            onclick="addToCart({{ products.id }})">
+                        افزودن به سبد خرید
+                    </button>
                 </div>
 
                 <!-- Media -->
@@ -321,13 +337,21 @@
                     <!-- Card -->
                     <div class="card card-bordered shadow-none text-center h-100">
                         <div class="card-pinned">
-                            <img class="card-img-top" src="{{ item.image.url }}" alt="{{ item.title }}">
+                            {% if item.image %}
+                                <img class="card-img-top" src="{{ item.image.url }}"
+                                     alt="{{ item.title }}">
+                            {% else %}
+                                <img class="card-img-top" src="{% static 'img/160x160/img1.jpg' %}"
+                                     alt="image">
+                            {% endif %}
 
                             <div class="card-pinned-top-end">
                                 {% if request.user.is_authenticated %}
                                     <button type="button"
-                                            class="btn btn-outline-secondary btn-xs btn-icon rounded-circle"
-                                            data-bs-toggle="tooltip" data-bs-placement="top" title="افزودن به علایق">
+                                            class="btn btn-outline-secondary btn-xs btn-icon rounded-circle
+                                            {% if item.id in wishlist_items %} active {% endif %}"
+                                            data-bs-toggle="tooltip" data-bs-placement="top"
+                                            title="افزودن به علایق">
                                         <i class="bi-heart"></i>
                                     </button>
                                 {% endif %}
@@ -353,15 +377,15 @@
 
                             {% if item.is_discounted %}
                                 <p class="card-text text-dark fs-4">
-                                    <span class="formatted-price">
+                                    <span>
                                         {{ item.get_price|intcomma:False }} تومان
                                     </span>
-                                    <span class="text-danger me-1 fs-6 formatted-price text-decoration-line-through">
+                                    <span class="text-danger me-1 fs-6 text-decoration-line-through">
                                         {{ item.price|intcomma:False }}تومان
                                     </span>
                                 </p>
                             {% else %}
-                                <p class="card-text text-dark fs-4 formatted-price">
+                                <p class="card-text text-dark fs-4">
                                     {{ item.price|intcomma:False }} تومان
                                 </p>
                             {% endif %}

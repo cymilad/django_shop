@@ -16,21 +16,21 @@
                 <div class="card card-bordered shadow-none text-center h-100">
                     <div class="card-pinned">
                         {% if product.image %}
-                            <img class="card-img-top"
-                                 src="{{ product.image.url }}"
+                            <img class="card-img-top" src="{{ product.image.url }}"
                                  alt="{{ product.title }}">
                         {% else %}
-                            <img class="card-img-top"
-                                 src="{% static 'img/160x160/img1.jpg' %}"
+                            <img class="card-img-top" src="{% static 'img/160x160/img1.jpg' %}"
                                  alt="no picture">
                         {% endif %}
 
                         <div class="card-pinned-top-end">
                             {% if request.user.is_authenticated %}
                                 <button type="button"
-                                        class="btn btn-outline-secondary btn-xs btn-icon rounded-circle"
+                                        class="btn btn-outline-secondary btn-xs btn-icon rounded-circle
+                                        {% if product.id in wishlist_items %} active {% endif %}"
                                         data-bs-toggle="tooltip" data-bs-placement="top"
-                                        title="افزودن به علایق">
+                                        title="افزودن به علایق"
+                                        onclick="addToWishlist(this,`{{ product.id }}`)">
                                     <i class="bi-heart"></i>
                                 </button>
                             {% endif %}

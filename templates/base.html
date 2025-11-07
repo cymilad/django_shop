@@ -282,7 +282,6 @@
 <!-- Add Product to cart -->
 <script>
     function addToCart(product_id) {
-        console.log(product_id)
 
         $.ajax({
             url: "{% url 'cart:add_product' %}",
@@ -293,7 +292,6 @@
             },
             success: function (response) {
                 $("#total-cart-item-count").html(response.total_quantity) // Update number cart after add product
-                console.log(response);
 
                 Swal.fire({
                     icon: 'success',
@@ -301,7 +299,7 @@
                     text: 'محصول با موفقیت به سبد خرید اضافه شد.',
                     showConfirmButton: true,
                     confirmButtonText: 'باشه',
-                    {#timer: 2000#}
+                    timer: 10000
                 })
             },
             error: function (jqXHR, textStatus, errorThrown) {
@@ -312,6 +310,34 @@
 </script>
 <!-- End Add Product to cart -->
 
+
+<!-- Add or Remove Product to WishList -->
+<script>
+    function addToWishlist(element,product_id) {
+        $.ajax({
+            url: "{% url 'shop:add_or_remove_wishlist' %}",
+            method: "POST",
+            data: {
+                product_id: product_id,
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+            },
+            success: function (response) {
+                Toastify({
+                    text: response.messages,
+                    className: `info`,
+                    style: {
+                        background: "blue",
+                    }
+                }).showToast();
+                $(element).toggleClass('active');
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log(errorThrown);
+            }
+        })
+    }
+</script>
+<!-- End Add or Remove Product to WishList -->
 
 
 {% block js %} {% endblock %}

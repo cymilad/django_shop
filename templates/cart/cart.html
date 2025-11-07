@@ -58,9 +58,15 @@
                             <li class="list-group-item">
                                 <div class="d-flex">
                                     <div class="flex-shrink-0">
-                                        <img class="avatar avatar-xl avatar-4x3"
-                                             src="{{ item.product.image.url }}"
-                                             alt="{{ item.product.title }}">
+                                        {% if item.product.image %}
+                                            <img class="avatar avatar-xl avatar-4x3"
+                                                 src="{{ item.product.image.url }}"
+                                                 alt="{{ item.product.title }}">
+                                        {% else %}
+                                            <img class="avatar avatar-xl avatar-4x3"
+                                                 src="{% static 'img/160x160/img1.jpg' %}"
+                                                 alt="image">
+                                        {% endif %}
                                     </div>
 
                                     <div class="flex-grow-1 ms-3">
@@ -284,10 +290,14 @@
                     Swal.fire({
                         icon: 'success',
                         title: "حذف محصول",
-                        text: 'حذف محصول با موفقیت به ‌روز شد.',
-                        confirmButtonText: 'باشه'
+                        text: 'حذف محصول با موفقیت به انجام شد.',
+                        confirmButtonText: 'باشه',
+                        timer: 10000
                     }).then((result) => {
                         if (result.isConfirmed) {
+                            window.location.reload();
+                        }
+                        else {
                             window.location.reload();
                         }
                     });
