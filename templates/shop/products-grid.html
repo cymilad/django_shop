@@ -204,7 +204,8 @@
                                             <button type="button"
                                                     class="btn btn-outline-secondary btn-xs btn-icon rounded-circle {% if product.id in wishlist_items %} active {% endif %}"
                                                     data-bs-toggle="tooltip" data-bs-placement="top"
-                                                    title="افزودن به علایق" onclick="addToWishlist(this,`{{ product.id }}`)">
+                                                    title="افزودن به علایق"
+                                                    onclick="addToWishlist(this,`{{ product.id }}`)">
                                                 <i class="bi-heart"></i>
                                             </button>
                                         {% endif %}
@@ -244,19 +245,14 @@
                                 <div class="card-footer pt-0">
                                     <!-- Rating -->
                                     <a class="d-inline-flex align-items-center mb-3" href="#">
-                                        <div class="d-flex gap-1 ms-2">
-                                            <img src="{% static 'svg/illustrations/star.svg' %}" alt="Review rating"
-                                                 width="16">
-                                            <img src="{% static 'svg/illustrations/star.svg' %}" alt="Review rating"
-                                                 width="16">
-                                            <img src="{% static 'svg/illustrations/star.svg' %}" alt="Review rating"
-                                                 width="16">
-                                            <img src="{% static 'svg/illustrations/star.svg' %}" alt="Review rating"
-                                                 width="16">
-                                            <img src="{% static 'svg/illustrations/star-muted.svg' %}"
-                                                 alt="Review rating" width="16">
-                                        </div>
-                                        <span class="small">40</span>
+                                        {% for i in "12345" %}
+                                            {% if i|add:0 <= product.avg_rate %}
+                                                <span><i class="bi bi-star-fill star-rate"></i></span>
+                                            {% else %}
+                                                <span><i class="bi bi-star star-rate"></i></span>
+                                            {% endif %}
+                                        {% endfor %}
+                                        <span class="me-2">{{ product.avg_rate }}/5</span>
                                     </a>
                                     <!-- End Rating -->
 
@@ -285,6 +281,8 @@
                             {% if page_obj.has_previous %}
                                 <a class="page-link"
                                    href="?page=
+
+
 
 
 
@@ -329,6 +327,8 @@
                             {% if page_obj.has_next %}
                                 <a class="page-link"
                                    href="?page=
+
+
 
 
 

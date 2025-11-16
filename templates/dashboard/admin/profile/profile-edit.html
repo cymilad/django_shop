@@ -218,7 +218,7 @@
                 if (file) {
                     const reader = new FileReader();
                     reader.onload = function (e) {
-                        avatarImg.src = e.target.result; // پیش‌نمایش موقت
+                        avatarImg.src = e.target.result; // پیش‌ نمایش موقت
                     };
                     reader.readAsDataURL(file);
                 } else {
@@ -226,8 +226,6 @@
                     avatarImg.src = originalSrc;
                 }
             });
-
-            // در صورتی که صفحه رفرش بشه بدون ارسال، پیش‌نمایش حذف می‌شه (چون فقط در مرورگر بود)
         });
     </script>
 {% endblock %}

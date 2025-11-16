@@ -5,6 +5,7 @@ from django.core.paginator import Paginator
 from django.core.exceptions import FieldError
 from urllib.parse import urlencode
 from .models import *
+from review.models import Review, ReviewStatusType
 
 
 def index(request):
@@ -75,17 +76,35 @@ def product_detail(request, slug):
     if request.user.is_authenticated:
         is_wished = Wishlist.objects.filter(user=request.user, product=products).exists()
 
-
     similar_product = Product.objects.filter(
         status=StatusType.publish,
         category__in=products.category.all()
     ).exclude(id=products.id).distinct().order_by('-id')[:4]
+
+    reviews = Review.objects.filter(product=products, status=ReviewStatusType.accepted.value)
+
+    total_reviews_count = reviews.count()
+
+    reviews_count = {
+        f"rate_{rate}": reviews.filter(rate=rate).count() for rate in range(1, 6)
+    }
+
+    if total_reviews_count != 0:
+        reviews_avg = {
+            f"rate_{rate}": round((reviews.filter(rate=rate).count() / total_reviews_count) * 100, 2)
+            for rate in range(1, 6)
+        }
+    else:
+        reviews_avg = {f"rate_{rate}": 0 for rate in range(1, 6)}
 
     data = {
         'products': products,
         'similar_product': similar_product,
         'wishlist_items': wishlist_items,
         'is_wished': is_wished,
+        "reviews": reviews,
+        "reviews_count": reviews_count,
+        "reviews_avg": reviews_avg,
     }
     return render(request, 'shop/products-detail.html', data)
 
