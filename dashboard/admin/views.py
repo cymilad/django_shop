@@ -9,10 +9,11 @@ from django.core.exceptions import FieldError
 from django.utils.text import slugify
 from django.db import IntegrityError
 from decimal import Decimal
+from functools import wraps
 from accounts.models import Profile, UserType
 from shop.models import Product, Category, StatusType
 from order.models import Order, OrderStatusType
-from functools import wraps
+from review.models import Review, ReviewStatusType
 import os
 
 
@@ -357,6 +358,7 @@ def order_list(request):
     }
     return render(request, "dashboard/admin/order/order-list.html", data)
 
+
 @admin_required
 def order_detail(request, pk):
     order = get_object_or_404(Order, pk=pk)
@@ -368,6 +370,7 @@ def order_detail(request, pk):
     }
     return render(request, "dashboard/admin/order/order-detail.html", data)
 
+
 @admin_required
 def order_invoice(request, pk):
     order = get_object_or_404(Order, pk=pk, status=OrderStatusType.success.value)
@@ -378,3 +381,67 @@ def order_invoice(request, pk):
         "profile": profile,
     }
     return render(request, 'dashboard/admin/order/order-invoice.html', data)
+
+
+@admin_required
+def review_list(request):
+    queryset = Review.objects.all()
+
+    search_q = request.GET.get("q")
+    if search_q:
+        queryset = queryset.filter(product__title__icontains=search_q)
+
+    status = request.GET.get("status")
+    if status:
+        queryset = queryset.filter(status=status)
+
+    order_by = request.GET.get("order_by")
+    if order_by:
+        try:
+            queryset = queryset.order_by(order_by)
+        except FieldError:
+            pass
+
+    paginate_by = int(request.GET.get("page_size", 5))
+    pageinator = Paginator(queryset, paginate_by)
+    page_number = request.GET.get("page")
+    page_obj = pageinator.get_page(page_number)
+
+    data = {
+        "items": page_obj,
+        "page_obj": page_obj,
+        "total_items": queryset.count(),
+        "status_types": ReviewStatusType.choices,
+    }
+    return render(request, "dashboard/admin/review/review-list.html", data)
+
+
+@admin_required
+def review_edit(request, pk):
+   review = get_object_or_404(Review, pk=pk)
+   status_choices = Review._meta.get_field('status').choices
+
+   if request.method == "POST":
+       description = request.POST.get("description")
+       rate = request.POST.get("rate")
+       status = request.POST.get("status")
+
+
+       if not description or not rate or not status:
+           messages.error(request, "تمام فیلدها ضروری هستند.")
+           return redirect('dashboard:admin:review-edit', pk=pk)
+
+       review.description = description
+       review.rate = rate
+       review.status = status
+       review.save()
+
+       messages.error(request, "تغییرات با موفقیت اعمال شد")
+       return redirect('dashboard:admin:review-edit', pk=pk)
+
+   data = {
+       "review": review,
+       "status_choices": status_choices,
+   }
+
+   return render(request, "dashboard/admin/review/review-edit.html", data)

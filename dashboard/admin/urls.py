@@ -15,4 +15,6 @@ urlpatterns = [
     path('order/list/', order_list, name='order-list'),
     path('order/detail/<int:pk>', order_detail, name='order-detail'),
     path('order/invoice/<int:pk>', order_invoice, name='order-invoice'),
+    path('review/list/', review_list, name='review-list'),
+    path('review/edit/<int:pk>', review_edit, name='review-edit'),
 ]
