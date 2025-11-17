@@ -18,13 +18,13 @@
                     <li class="mb-1">
                         <a class="link-sm link-light">
                             <i class="bi-geo-alt-fill me-1 text-warning"></i>
-                            ایران، بوشهر
+                            {{ footer_text.address }}
                         </a>
                     </li>
                     <li>
-                        <a class="link-sm link-light" href="tel:09170000000">
+                        <a class="link-sm link-light" href="tel:{{ footer_text.phone_number }}">
                             <i class="bi-telephone-fill me-1 text-warning"></i>
-                            09170000000
+                            {{ footer_text.phone_number }}
                         </a>
                     </li>
                 </ul>
@@ -86,19 +86,24 @@
 
             <!-- Social Icons -->
             <div class="col-sm-auto text-center">
-                <a href="#" class="mx-2 text-decoration-none social-icon telegram">
+                <a href="{{ social_media.telegram }}" target="_blank"
+                   class="mx-2 text-decoration-none social-icon telegram">
                     <i class="bi bi-telegram fs-5"></i>
                 </a>
-                <a href="#" class="mx-2 text-decoration-none social-icon youtube">
+                <a href="{{ social_media.youtube }}" target="_blank"
+                   class="mx-2 text-decoration-none social-icon youtube">
                     <i class="bi bi-youtube fs-5"></i>
                 </a>
-                <a href="#" class="mx-2 text-decoration-none social-icon github">
+                <a href="{{ social_media.github }}" target="_blank"
+                   class="mx-2 text-decoration-none social-icon github">
                     <i class="bi bi-github fs-5"></i>
                 </a>
-                <a href="#" class="mx-2 text-decoration-none social-icon instagram">
+                <a href="{{ social_media.instagram }}" target="_blank"
+                   class="mx-2 text-decoration-none social-icon instagram">
                     <i class="bi bi-instagram fs-5"></i>
                 </a>
-                <a href="#" class="mx-2 text-decoration-none social-icon linkedin">
+                <a href="{{ social_media.linkden }}" target="_blank"
+                   class="mx-2 text-decoration-none social-icon linkedin">
                     <i class="bi bi-linkedin fs-5"></i>
                 </a>
             </div>
@@ -140,8 +145,7 @@
         <div class="mb-2 d-flex justify-content-center align-items-center gap-2">
             <i class="bi bi-heart-fill text-danger"></i>
             <p class="mb-0 small text-white">
-                این وب‌ سایت با عشق توسط
-                <span class="fw-bold text-warning">میلاد رنجبر</span> طراحی شده است.
+                {{ footer_text.text_footer }}
             </p>
         </div>
 

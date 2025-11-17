@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     'order',
     'payment',
     'review',
+    'footer',
 ]
 
 MIDDLEWARE = [
@@ -60,6 +61,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'cart.context_processors.cart_processor',
+                'website.context_processors.global_footer_data',
             ],
         },
     },

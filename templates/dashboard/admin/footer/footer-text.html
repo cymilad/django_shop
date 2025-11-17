@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block title %}
-    داشبورد ادمین - ویرایش یوزر
+    داشبورد ادمین - شبکه های اجتماعی
 {% endblock %}
 
 
@@ -12,58 +12,53 @@
             <li class="breadcrumb-item"> حساب</li>
             <li class="breadcrumb-item"> داشبورد ادمین</li>
             <li class="breadcrumb-item active" aria-current="page">
-                ویرایش یوزر
+                شبکه های اجتماعی
             </li>
         </ol>
     </nav>
 {% endblock %}
-
 
 {% block content %}
 
     <div class="card">
         <!-- Header -->
         <div class="card-header border-bottom d-flex justify-content-between align-items-center">
-            <h5 class="card-header-title">ویرایش کاربر</h5>
-
+            <h5 class="card-header-title">شبکه های اجتماعی</h5>
         </div>
         <!-- End Header -->
 
         <!-- Body -->
-        <form action="{% url 'dashboard:admin:user-edit' user_obj.pk %}" method="post">
+        <form action="{% url 'dashboard:admin:footer-text' %}" method="post">
             {% csrf_token %}
             <div class="card-body">
 
                 <div class="mb-3">
-                    <label>ایمیل</label>
-                    <input type="email"
-                           name="email"
-                           class="form-control mx-3 Disabled text-center mb-3"
-                           value="{{ user_obj.email }}">
+                    <label class="mb-2">آدرس</label>
+                    <input type="text" name="address"
+                           placeholder="ایران، بوشهر"
+                           class="form-control mx-3 Disabled mb-3"
+                           value="{{ item.address }}">
                 </div>
 
-                <div class="form-check mb-3">
-                    <input type="checkbox"
-                           name="is_active"
-                           class="form-check-input mb-3"
-                           {% if user_obj.is_active %}checked{% endif %}>
-                    <label class="form-check-label">فعال</label>
+                <div class="mb-3">
+                    <label class="mb-2">شماره موبایل</label>
+                    <input type="number" name="phone_number"
+                           placeholder="09177374648"
+                           class="form-control mx-3 Disabled mb-3"
+                           value="{{ item.phone_number }}">
                 </div>
 
-                <div class="form-check mb-3">
-                    <input type="checkbox"
-                           name="is_verified"
-                           class="form-check-input mb-3"
-                           {% if user_obj.is_verified %}checked{% endif %}>
-                    <label class="form-check-label">تایید شده</label>
+                <div class="mb-3">
+                    <label class="mb-2">توسعه دهنده</label>
+                    <input type="text" name="text_footer"
+                           placeholder="این وب‌ سایت توسط توسط میلاد رنجبر طراحی شده است"
+                           class="form-control mx-3 Disabled mb-3"
+                           value="{{ item.text_footer }}">
                 </div>
 
                 <div class="card-footer">
                     <div class=" d-flex pt-5 justify-content-end">
-                        <a class="btn btn-secondary ms-3" href="{% url 'dashboard:admin:user-list' %}">
-                            بازگشت
-                        </a>
-                        <button class="btn btn-primary ms-3" type="submit">ثبت تغییرات</button>
+                        <button class="btn btn-primary ms-3" type="submit">ذخیره تغییرات</button>
                     </div>
                 </div>
 
@@ -73,8 +68,8 @@
 
 {% endblock %}
 
-{% block js %}
 
+{% block js %}
     <script>
         {% for message in messages %}
             Swal.fire({
@@ -89,6 +84,4 @@
             })
         {% endfor %}
     </script>
-
-
 {% endblock %}

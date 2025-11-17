@@ -1,8 +1,6 @@
-from django.db.models import ProtectedError
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
-from django.template.defaultfilters import title
 from django.views.decorators.http import require_POST
 from django.http import HttpResponseForbidden, JsonResponse
 from django.contrib import messages
@@ -16,9 +14,11 @@ from decimal import Decimal
 from functools import wraps
 from datetime import datetime
 from accounts.models import Profile, UserType
+from footer.models import SocialMedia
 from shop.models import Product, Category, StatusType
 from order.models import Order, OrderStatusType, Coupon
 from review.models import Review, ReviewStatusType
+from footer.models import SocialMedia, Footer_text
 import os
 
 User = get_user_model()
@@ -702,3 +702,45 @@ def user_edit(request, pk):
     }
 
     return render(request, "dashboard/admin/user/user-edit.html", data)
+
+
+@admin_required
+def social_media_list(request):
+    social_media, created = SocialMedia.objects.get_or_create(id=1)
+
+    if request.method == "POST":
+        social_media.telegram = request.POST.get("telegram")
+        social_media.instagram = request.POST.get("instagram")
+        social_media.youtube = request.POST.get("youtube")
+        social_media.github = request.POST.get("github")
+        social_media.linkden = request.POST.get("linkden")
+        social_media.save()
+
+        messages.success(request, "شبکه های اجتماعی با موفقیت بروزرسانی شدند.")
+        return redirect("dashboard:admin:social-media")
+
+    data = {
+        "item": social_media,
+    }
+
+    return render(request, 'dashboard/admin/footer/social-media.html', data)
+
+
+@admin_required
+def footer_text_list(request):
+    footer_text, created = Footer_text.objects.get_or_create(id=1)
+
+    if request.method == "POST":
+        footer_text.address = request.POST.get("address")
+        footer_text.phone_number = request.POST.get("phone_number")
+        footer_text.text_footer = request.POST.get("text_footer")
+        footer_text.save()
+
+        messages.success(request, "اطلاعات فوتر با موفقیت بروزرسانی شدند.")
+        return redirect("dashboard:admin:footer-text")
+
+    data = {
+        "item": footer_text,
+    }
+
+    return render(request, 'dashboard/admin/footer/footer-text.html', data)
