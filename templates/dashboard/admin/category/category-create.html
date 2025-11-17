@@ -1,0 +1,113 @@
+{% extends 'dashboard/admin/base.html' %}
+{% load static %}
+
+{% block title %}
+    داشبورد ادمین - ایجاد دسته بندی
+{% endblock %}
+
+{% block breadcrumb %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb breadcrumb-light mb-0">
+            <li class="breadcrumb-item"> حساب</li>
+            <li class="breadcrumb-item"> داشبورد ادمین</li>
+            <li class="breadcrumb-item active" aria-current="page">
+                ایجاد دسته بندی
+            </li>
+        </ol>
+    </nav>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div>
+            <div class="card mb-5">
+                <!-- Header -->
+                <div class="card-header border-bottom d-flex justify-content-between align-items-center">
+                    <h5 class="card-header-title">ایجاد دسته بندی</h5>
+                </div>
+                <!-- End Header -->
+
+                <!-- Body -->
+                <form action="{% url 'dashboard:admin:category-create' %}" method="post">
+                    {% csrf_token %}
+
+                    <div class="card-body">
+
+                        <div class="mb-3">
+                            <label for="title" class="form-label">عنوان دسته بندی</label>
+                            <input type="text" id="title" name="title" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">اسلاگ دسته بندی -
+                                <button class="btn btn-primary badge" type="button" onclick="generateSlug()">
+                                    ساخت اسلاگ
+                                </button>
+                            </label>
+                            <input type="text" id="catetory_slug" name="category_slug"
+                                   class="form-control" required>
+                        </div>
+
+                        <div class="card-footer">
+                            <div class=" d-flex pt-5 justify-content-end">
+                                <a class="btn btn-secondary ms-3"
+                                   href="{% url 'dashboard:admin:category-list' %}">
+                                    بازگشت
+                                </a>
+                                <button class="btn btn-primary ms-3" type="submit">ایجاد دسته بندی</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block js %}
+    <script>
+        {% for message in messages %}
+            Swal.fire({
+                icon: '{% if message.tags == "error" %}error{% else %}success{% endif %}',
+                html: '<span style="font-size:20px; font-weight:bold;">{{ message|escapejs }}</span>',
+                showConfirmButton: true,
+                confirmButtonText: 'باشه'
+            }).then((result) => {
+                if (result.isConfirmed && '{{ message.tags }}' != 'error') {
+                    window.location.reload();
+                }
+            })
+        {% endfor %}
+    </script>
+
+    <script>
+        function generateSlug() {
+            const title = $("#title").val();
+            const slug = slugify(title);
+            $("#catetory_slug").val(slug)
+        }
+
+        function slugify(titleStr) {
+            if (!titleStr) return '';
+
+            // حذف فاصله ابتدا و انتها و تبدیل به حروف کوچک
+            titleStr = titleStr.trim().toLowerCase();
+
+            // جایگزینی همه کاراکترهای غیرمجاز با -
+            titleStr = titleStr.replace(/[^a-z0-9\u0600-\u06FF\s-]/g, '-');
+
+            // تبدیل فاصله‌ها به -
+            titleStr = titleStr.replace(/\s+/g, '-');
+
+            // حذف چند خط تیره پشت سر هم
+            titleStr = titleStr.replace(/-+/g, '-');
+
+            // حذف خط تیره ابتدای رشته و انتها
+            titleStr = titleStr.replace(/^-+|-+$/g, '');
+
+            return titleStr;
+        }
+    </script>
+
+{% endblock %}

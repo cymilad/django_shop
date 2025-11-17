@@ -521,7 +521,7 @@ def coupon_create(request):
 
         if not code or not discount_percent or not max_limit_usage:
             messages.error(request, "تمام فیلدها ضروری هستند.")
-            return redirect(reverse_lazy("dashboard:admin:coupon-create"))
+            return redirect("dashboard:admin:coupon-create")
 
         expiration_datetime = None
         if expiration_date_str and expiration_time_str:
@@ -537,8 +537,8 @@ def coupon_create(request):
         messages.success(request, "ایجاد تخفیف با موفقیت انجام شد")
         return redirect('dashboard:admin:coupon-create')
 
-
     return render(request, "dashboard/admin/coupons/coupon-create.html")
+
 
 @admin_required
 def coupon_delete(request, pk):
@@ -554,4 +554,85 @@ def coupon_delete(request, pk):
 
         coupon.delete()
         return JsonResponse({"success": True, "message": "کد تخفیف با موفقیت حذف شد"})
+    return JsonResponse({"success": False, "message": "روش نامعتبر"})
+
+
+@admin_required
+def category_list(request):
+    queryset = Category.objects.all()
+
+    search_q = request.GET.get("q")
+    if search_q:
+        queryset = queryset.filter(title__icontains=search_q)
+
+    order_by = request.GET.get("order_by")
+    if order_by:
+        try:
+            queryset = queryset.order_by(order_by)
+        except FieldError:
+            pass
+
+    paginate_by = int(request.GET.get("page_size", 10))
+    pageinator = Paginator(queryset, paginate_by)
+    page_number = request.GET.get("page")
+    page_obj = pageinator.get_page(page_number)
+
+    data = {
+        "items": page_obj,
+        "page_obj": page_obj,
+        "total_items": queryset.count(),
+    }
+    return render(request, "dashboard/admin/category/category-list.html", data)
+
+@admin_required
+def category_create(request):
+    if request.method == "POST":
+        title = request.POST.get("title")
+        category_slug = request.POST.get("category_slug")
+
+        if not title or not category_slug:
+            messages.error(request, "تمام فیلدها ضروری هستند.")
+            return redirect("dashboard:admin:category-create")
+
+        Category.objects.create(
+            title=title,
+            slug=category_slug,
+        )
+
+        messages.success(request, "دسته بندی با موفقیت ایجاد شد.")
+        return redirect("dashboard:admin:category-create")
+
+    return render(request, 'dashboard/admin/category/category-create.html')
+
+@admin_required
+def category_edit(request, pk):
+    category = get_object_or_404(Category, pk=pk)
+
+    if request.method == "POST":
+        title = request.POST.get("title")
+        category_slug = request.POST.get("category_slug")
+
+        if not title or not category_slug:
+            messages.error(request, "تمام فیلدها ضروری هستند.")
+            return redirect('dashboard:admin:category-edit', pk=pk)
+
+        category.title = title
+        category.slug = category_slug
+        category.save()
+
+        messages.success(request, "ویرایش دسته بندی با موفقیت انجام شد")
+        return redirect('dashboard:admin:category-edit', pk=pk)
+
+    data = {
+        "category": category,
+    }
+
+    return render(request, "dashboard/admin/category/category-edit.html", data)
+
+@admin_required
+def category_delete(request, pk):
+    if request.method == "POST":
+        category = get_object_or_404(Category, pk=pk)
+        category.delete()
+        return JsonResponse({"success": True, "message": "دسته بندی با موفقیت حذف شد"})
     return JsonResponse({"success": False, "message": "روش نامعتبر"})

@@ -21,4 +21,8 @@ urlpatterns = [
     path('coupon/create/', coupon_create, name='coupon-create'),
     path('coupon/edit/<int:pk>', coupon_edit, name='coupon-edit'),
     path('coupon/delete/<int:pk>', coupon_delete, name='coupon-delete'),
+    path('category/list/', category_list, name='category-list'),
+    path('category/create/', category_create, name='category-create'),
+    path('category/edit/<int:pk>', category_edit, name='category-edit'),
+    path('category/delete/<int:pk>', category_delete, name='category-delete'),
 ]

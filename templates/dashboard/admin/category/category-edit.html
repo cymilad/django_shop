@@ -1,0 +1,129 @@
+{% extends 'dashboard/admin/base.html' %}
+{% load static %}
+
+{% block title %}
+    داشبورد ادمین - ویرایش دسته بندی
+{% endblock %}
+
+{% block breadcrumb %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb breadcrumb-light mb-0">
+            <li class="breadcrumb-item"> حساب</li>
+            <li class="breadcrumb-item"> داشبورد ادمین</li>
+            <li class="breadcrumb-item active" aria-current="page">
+                ویرایش دسته بندی
+            </li>
+        </ol>
+    </nav>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div>
+            <div class="card mb-5">
+                <!-- Header -->
+                <div class="card-header border-bottom d-flex justify-content-between align-items-center">
+                    <h5 class="card-header-title">ویرایش دسته بندی</h5>
+                </div>
+                <!-- End Header -->
+
+                <!-- Body -->
+                <form action="{% url 'dashboard:admin:category-edit' category.pk %}" method="post">
+                    {% csrf_token %}
+
+                    <div class="card-body">
+
+                        <div class="mb-3">
+                            <label for="title" class="form-label">عنوان دسته بندی</label>
+                            <input type="text" id="title" name="title" class="form-control"
+                                   value="{{ category.title }}"
+                                   required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="catetory_slug" class="form-label">اسلاگ دسته بندی</label>
+                            <input type="text" id="catetory_slug" name="category_slug"
+                                   value="{{ category.slug }}"
+                                   class="form-control" required>
+                        </div>
+
+                        <div class="card-footer">
+                            <div class=" d-flex pt-5 justify-content-end">
+                                <input type="hidden" id="csrf_token" value="{{ csrf_token }}">
+                                <button type="button" class="btn btn-danger ms-3"
+                                        data-url="{% url 'dashboard:admin:category-delete' category.pk %}"
+                                        onclick="confirmDelete(this, '{{ category.title|escapejs }}')">
+                                    حذف
+                                </button>
+
+                                <a class="btn btn-secondary ms-3"
+                                   href="{% url 'dashboard:admin:category-list' %}">
+                                    بازگشت
+                                </a>
+                                <button class="btn btn-primary ms-3" type="submit">ایجاد دسته بندی</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block js %}
+    <script>
+        {% for message in messages %}
+            Swal.fire({
+                icon: '{% if message.tags == "error" %}error{% else %}success{% endif %}',
+                html: '<span style="font-size:20px; font-weight:bold;">{{ message|escapejs }}</span>',
+                showConfirmButton: true,
+                confirmButtonText: 'باشه'
+            }).then((result) => {
+                if (result.isConfirmed && '{{ message.tags }}' != 'error') {
+                    window.location.reload();
+                }
+            })
+        {% endfor %}
+    </script>
+
+
+    <script>
+        function confirmDelete(btn, title) {
+            Swal.fire({
+                title: 'تایید حذف',
+                html: `آیا مطمئن هستید می‌خواهید دسته بندی <strong>${title}</strong> را حذف کنید؟`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'بله، حذف کن',
+                cancelButtonText: 'خیر',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const url = btn.dataset.url;
+                    const csrfToken = document.getElementById('csrf_token').value;
+
+                    fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrfToken,
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                        },
+                    }).then(res => res.json()).then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                html: `<span style="font-size:20px; font-weight:bold;">${data.message}</span>`,
+                                confirmButtonText: 'باشه'
+                            }).then(() => {
+                                window.location.href = '{% url 'dashboard:admin:category-list' %}';
+                            });
+                        } else {
+                            Swal.fire('خطا', data.message, 'error');
+                        }
+                    });
+                }
+            });
+        }
+    </script>
+{% endblock %}
