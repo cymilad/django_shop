@@ -1,9 +1,13 @@
+from django.db.models import ProtectedError
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
+from django.template.defaultfilters import title
 from django.views.decorators.http import require_POST
 from django.http import HttpResponseForbidden, JsonResponse
 from django.contrib import messages
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User
 from django.core.paginator import Paginator
 from django.core.exceptions import FieldError
 from django.utils.text import slugify
@@ -16,6 +20,8 @@ from shop.models import Product, Category, StatusType
 from order.models import Order, OrderStatusType, Coupon
 from review.models import Review, ReviewStatusType
 import os
+
+User = get_user_model()
 
 
 def admin_required(view_func):
@@ -584,6 +590,7 @@ def category_list(request):
     }
     return render(request, "dashboard/admin/category/category-list.html", data)
 
+
 @admin_required
 def category_create(request):
     if request.method == "POST":
@@ -603,6 +610,7 @@ def category_create(request):
         return redirect("dashboard:admin:category-create")
 
     return render(request, 'dashboard/admin/category/category-create.html')
+
 
 @admin_required
 def category_edit(request, pk):
@@ -629,6 +637,7 @@ def category_edit(request, pk):
 
     return render(request, "dashboard/admin/category/category-edit.html", data)
 
+
 @admin_required
 def category_delete(request, pk):
     if request.method == "POST":
@@ -636,3 +645,60 @@ def category_delete(request, pk):
         category.delete()
         return JsonResponse({"success": True, "message": "دسته بندی با موفقیت حذف شد"})
     return JsonResponse({"success": False, "message": "روش نامعتبر"})
+
+
+@admin_required
+def user_list(request):
+    queryset = User.objects.filter(is_superuser=False, type=UserType.customer.value).order_by("-created_date")
+
+    search_q = request.GET.get("q")
+    if search_q:
+        queryset = queryset.filter(email__icontains=search_q)
+
+    order_by = request.GET.get("order_by")
+    if order_by:
+        try:
+            queryset = queryset.order_by(order_by)
+        except FieldError:
+            pass
+
+    paginate_by = int(request.GET.get("page_size", 10))
+    pageinator = Paginator(queryset, paginate_by)
+    page_number = request.GET.get("page")
+    page_obj = pageinator.get_page(page_number)
+
+    data = {
+        "items": page_obj,
+        "page_obj": page_obj,
+        "total_result": queryset.count(),
+    }
+    return render(request, "dashboard/admin/user/user-list.html", data)
+
+
+@admin_required
+def user_edit(request, pk):
+    queryset = User.objects.filter(is_superuser=False, type=UserType.customer.value)
+    user_obj = get_object_or_404(queryset, pk=pk)
+
+    if request.method == "POST":
+        email = request.POST.get("email", "").strip()
+        is_active = request.POST.get("is_active") == "on"
+        is_verified = request.POST.get("is_verified") == "on"
+
+        if not email:
+            messages.error(request, "ایمیل نمی‌ تواند خالی باشد")
+        else:
+            user_obj.email = email
+            user_obj.is_active = is_active
+            user_obj.is_verified = is_verified
+            user_obj.save()
+
+            messages.success(request, "کاربر مورد نظر با موفقیت ویرایش شد")
+            return redirect("dashboard:admin:user-edit", pk=pk)
+
+    data = {
+        "title": "ویرایش کاربر",
+        "user_obj": user_obj,
+    }
+
+    return render(request, "dashboard/admin/user/user-edit.html", data)

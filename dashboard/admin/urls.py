@@ -25,4 +25,6 @@ urlpatterns = [
     path('category/create/', category_create, name='category-create'),
     path('category/edit/<int:pk>', category_edit, name='category-edit'),
     path('category/delete/<int:pk>', category_delete, name='category-delete'),
+    path('user/list/', user_list, name='user-list'),
+    path('user/edit/<int:pk>', user_edit, name='user-edit'),
 ]

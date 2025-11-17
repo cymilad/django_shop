@@ -1,0 +1,93 @@
+{% extends 'dashboard/admin/base.html' %}
+{% load static %}
+
+{% block title %}
+    داشبورد ادمین - ویرایش یوزر
+{% endblock %}
+
+
+{% block breadcrumb %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb breadcrumb-light mb-0">
+            <li class="breadcrumb-item"> حساب</li>
+            <li class="breadcrumb-item"> داشبورد ادمین</li>
+            <li class="breadcrumb-item active" aria-current="page">
+                ویرایش یوزر
+            </li>
+        </ol>
+    </nav>
+{% endblock %}
+
+
+{% block content %}
+    <div class="card">
+        <!-- Header -->
+        <div class="card-header border-bottom d-flex justify-content-between align-items-center">
+            <h5 class="card-header-title">ویرایش کاربر</h5>
+
+        </div>
+        <!-- End Header -->
+
+        <!-- Body -->
+        <form action="{% url 'dashboard:admin:user-edit' user_obj.pk %}" method="post">
+            {% csrf_token %}
+            <div class="card-body">
+
+                <div class="mb-3">
+                    <label>ایمیل</label>
+                    <input type="email"
+                           name="email"
+                           class="form-control mx-3 Disabled text-center mb-3"
+                           value="{{ user_obj.email }}">
+                </div>
+
+                <div class="form-check mb-3">
+                    <input type="checkbox"
+                           name="is_active"
+                           class="form-check-input mb-3"
+                           {% if user_obj.is_active %}checked{% endif %}>
+                    <label class="form-check-label">فعال</label>
+                </div>
+
+                <div class="form-check mb-3">
+                    <input type="checkbox"
+                           name="is_verified"
+                           class="form-check-input mb-3"
+                           {% if user_obj.is_verified %}checked{% endif %}>
+                    <label class="form-check-label">تایید شده</label>
+                </div>
+
+                <div class="card-footer">
+                    <div class=" d-flex pt-5 justify-content-end">
+                        <a class="btn btn-secondary ms-3" href="{% url 'dashboard:admin:user-list' %}">
+                            بازگشت
+                        </a>
+                        <button class="btn btn-primary ms-3" type="submit">ثبت تغییرات</button>
+                    </div>
+                </div>
+
+            </div>
+        </form>
+    </div>
+
+{% endblock %}
+
+{% block js %}
+
+    <script>
+        {% for message in messages %}
+            Swal.fire({
+                icon: '{% if message.tags == "error" %}error{% else %}success{% endif %}',
+                html: '<span style="font-size:20px; font-weight:bold;">{{ message|escapejs }}</span>',
+                showConfirmButton: true,
+                confirmButtonText: 'باشه'
+            }).then((result) => {
+                if (result.isConfirmed && '{{ message.tags }}' != 'error') {
+                    window.location.reload();
+                }
+            })
+        {% endfor %}
+    </script>
+
+
+{% endblock %}
