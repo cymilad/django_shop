@@ -17,4 +17,8 @@ urlpatterns = [
     path('order/invoice/<int:pk>', order_invoice, name='order-invoice'),
     path('review/list/', review_list, name='review-list'),
     path('review/edit/<int:pk>', review_edit, name='review-edit'),
+    path('coupon/list/', coupon_list, name='coupon-list'),
+    path('coupon/create/', coupon_create, name='coupon-create'),
+    path('coupon/edit/<int:pk>', coupon_edit, name='coupon-edit'),
+    path('coupon/delete/<int:pk>', coupon_delete, name='coupon-delete'),
 ]

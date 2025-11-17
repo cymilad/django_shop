@@ -1,0 +1,187 @@
+{% extends 'dashboard/admin/base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}
+    داشبورد ادمین - ویرایش کد تخفیف
+{% endblock %}
+
+{% block breadcrumb %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb breadcrumb-light mb-0">
+            <li class="breadcrumb-item"> حساب</li>
+            <li class="breadcrumb-item"> داشبورد ادمین</li>
+            <li class="breadcrumb-item active" aria-current="page">
+                ویرایش کد تخفیف
+            </li>
+        </ol>
+    </nav>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div>
+            <div class="card mb-5">
+                <!-- Header -->
+                <div class="card-header border-bottom d-flex justify-content-between align-items-center">
+                    <h5 class="card-header-title">ویرایش کد تخفیف</h5>
+                </div>
+                <!-- End Header -->
+
+                <!-- Body -->
+                <form action="{% url 'dashboard:admin:coupon-edit' coupon.pk %}" method="post">
+                    {% csrf_token %}
+
+                    <div class="card-body">
+
+                        <div class="mb-3">
+                            <label for="code" class="form-label">کد تخفیف</label>
+                            <input type="text" id="code" name="code" class="form-control"
+                                   value="{{ coupon.code }}"
+                                   required>
+                        </div>
+
+                        <!-- Discount percent -->
+                        <div class="mb-3">
+                            <label for="discount_percent" class="form-label">درصد تخفیف</label>
+                            <input type="number" id="discount_percent" name="discount_percent"
+                                   value="{{ coupon.discount_percent }}"
+                                   class="form-control" min="1" max="100" required>
+                        </div>
+
+                        <!-- Max limit usage -->
+                        <div class="mb-3">
+                            <label for="max_limit_usage" class="form-label">حداکثر تعداد استفاده</label>
+                            <input type="number" id="max_limit_usage" name="max_limit_usage"
+                                   value="{{ coupon.max_limit_usage }}"
+                                   class="form-control" min="1" required>
+                        </div>
+
+                        <!-- Expiration date -->
+                        <div class="mb-3">
+                            <label for="expiration_date" class="form-label">تاریخ انقضا</label>
+                            <input type="date" id="expiration_date" name="expiration_date"
+                                   value="{{ coupon.expiration_date|date:'Y-m-d' }}"
+                                   class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="expiration_time" class="form-label">ساعت انقضا</label>
+                            <input type="time" id="expiration_time" name="expiration_time"
+                                   value="{{ coupon.expiration_date|date:'H:i' }}"
+                                   class="form-control" required>
+                        </div>
+
+
+                        <div class="card-footer">
+                            <div class=" d-flex pt-5 justify-content-end">
+                                <input type="hidden" id="csrf_token" value="{{ csrf_token }}">
+                                <button type="button" class="btn btn-danger ms-3"
+                                        data-url="{% url 'dashboard:admin:coupon-delete' coupon.pk %}"
+                                        onclick="confirmDelete(this, '{{ coupon.title|escapejs }}')">
+                                    حذف
+                                </button>
+
+                                <a class="btn btn-secondary ms-3"
+                                   href="{% url 'dashboard:admin:coupon-list' %}">
+                                    بازگشت
+                                </a>
+
+                                <button class="btn btn-primary ms-3" type="submit">ثبت تغییرات</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <div class="card mb-5">
+            <!-- Table -->
+            <div class="card-header border-bottom ">
+                <h5 class="card-header-title">لیست استفاده کنندگان</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead class="thead-light">
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">کاربر</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for user in coupon.used_by.all %}
+                            <tr>
+                                <th scope="row">{{ forloop.counter }}</th>
+                                <td>{{ user.email }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block js %}
+
+    <script>
+        {% for message in messages %}
+            Swal.fire({
+                icon: '{% if message.tags == "error" %}error{% else %}success{% endif %}',
+                html: '<span style="font-size:20px; font-weight:bold;">{{ message|escapejs }}</span>',
+                showConfirmButton: true,
+                confirmButtonText: 'باشه'
+            }).then((result) => {
+                if (result.isConfirmed && '{{ message.tags }}' != 'error') {
+                    window.location.reload();
+                }
+            })
+        {% endfor %}
+    </script>
+
+
+
+    <script>
+        function confirmDelete(btn, title) {
+            Swal.fire({
+                title: 'تایید حذف',
+                html: `آیا مطمئن هستید می‌خواهید کد <strong>${title}</strong> را حذف کنید؟`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'بله، حذف کن',
+                cancelButtonText: 'خیر',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const url = btn.dataset.url;
+                    const csrfToken = document.getElementById('csrf_token').value;
+
+                    fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrfToken,
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                        },
+                    }).then(res => res.json()).then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                html: `<span style="font-size:20px; font-weight:bold;">${data.message}</span>`,
+                                confirmButtonText: 'باشه'
+                            }).then(() => {
+                                window.location.href = '{% url 'dashboard:admin:coupon-list' %}';
+                            });
+                        } else {
+                            Swal.fire('خطا', data.message, 'error');
+                        }
+                    });
+                }
+            });
+        }
+    </script>
+{% endblock %}

@@ -10,9 +10,10 @@ from django.utils.text import slugify
 from django.db import IntegrityError
 from decimal import Decimal
 from functools import wraps
+from datetime import datetime
 from accounts.models import Profile, UserType
 from shop.models import Product, Category, StatusType
-from order.models import Order, OrderStatusType
+from order.models import Order, OrderStatusType, Coupon
 from review.models import Review, ReviewStatusType
 import os
 
@@ -402,7 +403,7 @@ def review_list(request):
         except FieldError:
             pass
 
-    paginate_by = int(request.GET.get("page_size", 5))
+    paginate_by = int(request.GET.get("page_size", 10))
     pageinator = Paginator(queryset, paginate_by)
     page_number = request.GET.get("page")
     page_obj = pageinator.get_page(page_number)
@@ -418,30 +419,139 @@ def review_list(request):
 
 @admin_required
 def review_edit(request, pk):
-   review = get_object_or_404(Review, pk=pk)
-   status_choices = Review._meta.get_field('status').choices
+    review = get_object_or_404(Review, pk=pk)
+    status_choices = Review._meta.get_field('status').choices
 
-   if request.method == "POST":
-       description = request.POST.get("description")
-       rate = request.POST.get("rate")
-       status = request.POST.get("status")
+    if request.method == "POST":
+        description = request.POST.get("description")
+        rate = request.POST.get("rate")
+        status = request.POST.get("status")
+
+        if not description or not rate or not status:
+            messages.error(request, "تمام فیلدها ضروری هستند.")
+            return redirect('dashboard:admin:review-edit', pk=pk)
+
+        review.description = description
+        review.rate = rate
+        review.status = status
+        review.save()
+
+        messages.error(request, "تغییرات با موفقیت اعمال شد")
+        return redirect('dashboard:admin:review-edit', pk=pk)
+
+    data = {
+        "review": review,
+        "status_choices": status_choices,
+    }
+
+    return render(request, "dashboard/admin/review/review-edit.html", data)
 
 
-       if not description or not rate or not status:
-           messages.error(request, "تمام فیلدها ضروری هستند.")
-           return redirect('dashboard:admin:review-edit', pk=pk)
+@admin_required
+def coupon_list(request):
+    queryset = Coupon.objects.all()
 
-       review.description = description
-       review.rate = rate
-       review.status = status
-       review.save()
+    search_q = request.GET.get("q")
+    if search_q:
+        queryset = queryset.filter(code__icontains=search_q)
 
-       messages.error(request, "تغییرات با موفقیت اعمال شد")
-       return redirect('dashboard:admin:review-edit', pk=pk)
+    order_by = request.GET.get("order_by")
+    if order_by:
+        try:
+            queryset = queryset.order_by(order_by)
+        except FieldError:
+            pass
 
-   data = {
-       "review": review,
-       "status_choices": status_choices,
-   }
+    paginate_by = int(request.GET.get("page_size", 10))
+    pageinator = Paginator(queryset, paginate_by)
+    page_number = request.GET.get("page")
+    page_obj = pageinator.get_page(page_number)
 
-   return render(request, "dashboard/admin/review/review-edit.html", data)
+    data = {
+        "items": page_obj,
+        "page_obj": page_obj,
+        "total_items": queryset.count(),
+    }
+    return render(request, "dashboard/admin/coupons/coupon-list.html", data)
+
+
+@admin_required
+def coupon_edit(request, pk):
+    coupon = get_object_or_404(Coupon, pk=pk)
+
+    if request.method == "POST":
+        code = request.POST.get("code")
+        discount_percent = request.POST.get("discount_percent")
+        max_limit_usage = request.POST.get("max_limit_usage")
+        date_str = request.POST.get("expiration_date")
+        time_str = request.POST.get("expiration_time")
+
+        if not code or not discount_percent or not max_limit_usage:
+            messages.error(request, "تمام فیلدها ضروری هستند.")
+            return redirect('dashboard:admin:coupon-edit', pk=pk)
+
+        coupon.code = code
+        coupon.discount_percent = discount_percent
+        coupon.max_limit_usage = max_limit_usage
+        if date_str and time_str:
+            expiration_datetime = datetime.strptime(f"{date_str} {time_str}", "%Y-%m-%d %H:%M")
+            coupon.expiration_date = expiration_datetime
+        else:
+            coupon.expiration_date = None
+        coupon.save()
+
+        messages.success(request, "ویرایش تخفیف با موفقیت انجام شد")
+        return redirect('dashboard:admin:coupon-edit', pk=pk)
+
+    data = {
+        "coupon": coupon,
+    }
+
+    return render(request, "dashboard/admin/coupons/coupon-edit.html", data)
+
+
+@admin_required
+def coupon_create(request):
+    if request.method == "POST":
+        code = request.POST.get("code")
+        discount_percent = request.POST.get("discount_percent")
+        max_limit_usage = request.POST.get("max_limit_usage")
+        expiration_date_str = request.POST.get("expiration_date")
+        expiration_time_str = request.POST.get("expiration_time")
+
+        if not code or not discount_percent or not max_limit_usage:
+            messages.error(request, "تمام فیلدها ضروری هستند.")
+            return redirect(reverse_lazy("dashboard:admin:coupon-create"))
+
+        expiration_datetime = None
+        if expiration_date_str and expiration_time_str:
+            expiration_datetime = datetime.strptime(
+                f"{expiration_date_str} {expiration_time_str}", "%Y-%m-%d %H:%M")
+
+        Coupon.objects.create(
+            code=code,
+            discount_percent=discount_percent,
+            max_limit_usage=max_limit_usage,
+            expiration_date=expiration_datetime,
+        )
+        messages.success(request, "ایجاد تخفیف با موفقیت انجام شد")
+        return redirect('dashboard:admin:coupon-create')
+
+
+    return render(request, "dashboard/admin/coupons/coupon-create.html")
+
+@admin_required
+def coupon_delete(request, pk):
+    if request.method == "POST":
+        coupon = get_object_or_404(Coupon, pk=pk)
+
+        related_orders = Order.objects.filter(coupon=coupon)
+        if related_orders.exists():
+            return JsonResponse({
+                "success": False,
+                "message": "این کد تخفیف در سفارش‌ هایی استفاده شده و نمی‌ توان آن را حذف کرد."
+            })
+
+        coupon.delete()
+        return JsonResponse({"success": True, "message": "کد تخفیف با موفقیت حذف شد"})
+    return JsonResponse({"success": False, "message": "روش نامعتبر"})

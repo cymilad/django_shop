@@ -1,0 +1,102 @@
+{% extends 'dashboard/admin/base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}
+    داشبورد ادمین - ویرایش کد تخفیف
+{% endblock %}
+
+{% block breadcrumb %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb breadcrumb-light mb-0">
+            <li class="breadcrumb-item"> حساب</li>
+            <li class="breadcrumb-item"> داشبورد ادمین</li>
+            <li class="breadcrumb-item active" aria-current="page">
+                ویرایش کد تخفیف
+            </li>
+        </ol>
+    </nav>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div>
+            <div class="card mb-5">
+                <!-- Header -->
+                <div class="card-header border-bottom d-flex justify-content-between align-items-center">
+                    <h5 class="card-header-title">ویرایش کد تخفیف</h5>
+                </div>
+                <!-- End Header -->
+
+                <!-- Body -->
+                <form action="{% url 'dashboard:admin:coupon-create' %}" method="post">
+                    {% csrf_token %}
+
+                    <div class="card-body">
+
+                        <div class="mb-3">
+                            <label for="code" class="form-label">کد تخفیف</label>
+                            <input type="text" id="code" name="code" class="form-control" required>
+                        </div>
+
+                        <!-- Discount percent -->
+                        <div class="mb-3">
+                            <label for="discount_percent" class="form-label">درصد تخفیف</label>
+                            <input type="number" id="discount_percent" name="discount_percent"
+                                   class="form-control" min="1" max="100" required>
+                        </div>
+
+                        <!-- Max limit usage -->
+                        <div class="mb-3">
+                            <label for="max_limit_usage" class="form-label">حداکثر تعداد استفاده</label>
+                            <input type="number" id="max_limit_usage" name="max_limit_usage"
+                                   class="form-control" min="1" required>
+                        </div>
+
+                        <!-- Expiration date -->
+                        <div class="mb-3">
+                            <label for="expiration_date" class="form-label">تاریخ انقضا</label>
+                            <input type="date" id="expiration_date" name="expiration_date"
+                                   class="form-control">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="expiration_time" class="form-label">ساعت انقضا</label>
+                            <input type="time" id="expiration_time" name="expiration_time"
+                                   class="form-control">
+                        </div>
+
+
+                        <div class="card-footer">
+                            <div class=" d-flex pt-5 justify-content-end">
+                                <a class="btn btn-secondary ms-3"
+                                   href="{% url 'dashboard:admin:coupon-list' %}">
+                                    بازگشت
+                                </a>
+                                <button class="btn btn-primary ms-3" type="submit">ایجاد کد تخفیف</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block js %}
+    <script>
+        {% for message in messages %}
+            Swal.fire({
+                icon: '{% if message.tags == "error" %}error{% else %}success{% endif %}',
+                html: '<span style="font-size:20px; font-weight:bold;">{{ message|escapejs }}</span>',
+                showConfirmButton: true,
+                confirmButtonText: 'باشه'
+            }).then((result) => {
+                if (result.isConfirmed && '{{ message.tags }}' != 'error') {
+                    window.location.reload();
+                }
+            })
+        {% endfor %}
+    </script>
+{% endblock %}
