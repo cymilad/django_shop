@@ -65,6 +65,19 @@
   <img src="https://github.com/cymilad/django_shop/blob/main/screenshot/6.png"  />
 </div>
 
+
+###
+
+<div align="center">
+  <img src="https://github.com/cymilad/django_shop/blob/main/screenshot/9.png"  />
+</div>
+
+###
+
+<div align="center">
+  <img src="https://github.com/cymilad/django_shop/blob/main/screenshot/10.png"  />
+</div>
+
 ###
 
 <div align="center">
