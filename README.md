@@ -81,6 +81,13 @@
 ###
 
 <div align="center">
+  <img src="https://github.com/cymilad/django_shop/blob/main/screenshot/11.png"  />
+</div>
+
+
+###
+
+<div align="center">
   <img src="https://github.com/cymilad/django_shop/blob/main/screenshot/8.png"  />
 </div>
 
